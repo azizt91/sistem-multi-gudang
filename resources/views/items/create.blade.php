@@ -244,20 +244,49 @@ document.addEventListener('DOMContentLoaded', function() {
             ]
         };
         
+        // Attempt 1: Back Camera
         html5QrcodeScanner.start(
             { facingMode: "environment" },
             config,
             onScanSuccess,
             onScanError
         ).then(() => {
-            isScanning = true;
-            toggleBtnText.textContent = 'Stop Scan';
-            toggleScannerBtn.classList.remove('btn-primary');
-            toggleScannerBtn.classList.add('btn-danger');
+            handleScanSuccessStart();
         }).catch(err => {
-            showScanError('Tidak dapat mengakses kamera: ' + err);
+            console.warn("Back camera failed, trying front...", err);
+            // Attempt 2: Front/User Camera
+            html5QrcodeScanner.start(
+                { facingMode: "user" },
+                config,
+                onScanSuccess,
+                onScanError
+            ).then(() => {
+                handleScanSuccessStart();
+            }).catch(err2 => {
+                showScanError('Tidak dapat mengakses kamera: ' + err2);
+            });
         });
     }
+
+    function handleScanSuccessStart() {
+        isScanning = true;
+        toggleBtnText.textContent = 'Stop Scan';
+        toggleScannerBtn.classList.remove('btn-primary');
+        toggleScannerBtn.classList.add('btn-danger');
+    }
+
+    // Cleanup Listeners
+    window.addEventListener('beforeunload', function() {
+        if (html5QrcodeScanner) {
+            html5QrcodeScanner.stop().catch(err => {});
+        }
+    });
+
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden && isScanning) {
+            stopScanner();
+        }
+    });
 
     function stopScanner() {
         if (html5QrcodeScanner) {

@@ -246,7 +246,7 @@
                     </ol>
 
                     <div class="text-center mb-3">
-                        <img src="{{ asset('images/manual/receipt-pdf.png') }}" alt="PDF Tanda Terima" class="img-fluid rounded shadow" style="max-width: 500px;">
+                        <img src="{{ asset('images/manual/receipt-pdf.png') }}" alt="PDF Tanda Terima" class="img-fluid rounded shadow" style="width: 100%; max-width: 500px;">
                         <p class="text-muted small mt-2">Gambar 10: Contoh PDF Tanda Terima</p>
                     </div>
 
@@ -266,7 +266,7 @@
                     <p>Fitur scan barcode telah diperbarui dengan sistem <strong>Keranjang (Cart)</strong>, memungkinkan Anda men-scan banyak barang sekaligus sebelum disimpan.</p>
                     
                     <div class="text-center mb-3">
-                        <img src="{{ asset('images/manual/barcode-scanner.png') }}" alt="Barcode Scanner Multi-Item" class="img-fluid rounded shadow" style="max-width: 500px;">
+                        <img src="{{ asset('images/manual/barcode-scanner.png') }}" alt="Barcode Scanner Multi-Item" class="img-fluid rounded shadow" style="width: 100%; max-width: 500px;">
                         <p class="text-muted small mt-2">Gambar 9: Halaman Scan Barcode dengan Sistem Keranjang</p>
                     </div>
 
@@ -298,7 +298,7 @@
                     <p>Setiap barang memiliki barcode unik yang bisa dicetak.</p>
                     
                     <div class="text-center mb-3">
-                        <img src="{{ asset('images/manual/print-barcode.png') }}" alt="Cetak Barcode" class="img-fluid rounded shadow" style="max-width: 400px;">
+                        <img src="{{ asset('images/manual/print-barcode.png') }}" alt="Cetak Barcode" class="img-fluid rounded shadow" style="width: 100%; max-width: 400px;">
                         <p class="text-muted small mt-2">Gambar 10: Preview Cetak Barcode</p>
                     </div>
                 </div>

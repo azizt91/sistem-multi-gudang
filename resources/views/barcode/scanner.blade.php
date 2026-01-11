@@ -148,20 +148,56 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('startScanBtn').addEventListener('click', function() {
         if (html5QrcodeScanner) return; // Prevent multiple instances
 
+        // Try starting with environment camera, fallback to user if failed
+        startScannerWithFallback();
+    });
+
+    function startScannerWithFallback() {
         const config = { fps: 10, qrbox: { width: 250, height: 250 } };
         html5QrcodeScanner = new Html5Qrcode("reader");
         
+        // Attempt 1: Back Camera
         html5QrcodeScanner.start(
             { facingMode: "environment" },
             config,
             onScanSuccess,
             onScanFailure
         ).then(() => {
-            this.style.display = 'none';
-            document.getElementById('stopScanBtn').style.display = 'inline-block';
+            handleScanSuccessStart();
         }).catch(err => {
-            showError("Gagal akses kamera: " + err);
+            console.warn("Back camera not found or failed, trying front camera...", err);
+            // Attempt 2: Front Camera or Any available
+            html5QrcodeScanner.start(
+                { facingMode: "user" },
+                config,
+                onScanSuccess,
+                onScanFailure
+            ).then(() => {
+                handleScanSuccessStart();
+            }).catch(err2 => {
+                showError("Gagal akses kamera: " + err2);
+            });
         });
+    }
+
+    function handleScanSuccessStart() {
+        document.getElementById('startScanBtn').style.display = 'none';
+        document.getElementById('stopScanBtn').style.display = 'inline-block';
+    }
+
+    // Stop Camera on Page Exit/Unload
+    window.addEventListener('beforeunload', function() {
+        if (html5QrcodeScanner) {
+            // Attempt to stop, but don't blocking wait
+            html5QrcodeScanner.stop().catch(err => console.error("Failed to stop on unload", err));
+        }
+    });
+
+    // Handle Visibility Change (Tab Switch)
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden && html5QrcodeScanner) {
+            stopCamera();
+        }
     });
 
     // Stop Camera

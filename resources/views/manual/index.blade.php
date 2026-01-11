@@ -1,0 +1,559 @@
+@extends('layouts.app')
+
+@section('title', 'Panduan Pengguna')
+
+@section('content')
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar Navigation -->
+        <div class="col-lg-3 mb-4">
+            <div class="card position-sticky" style="top: 80px;">
+                <div class="card-header">
+                    <i class="bi bi-book me-2"></i>Daftar Isi
+                </div>
+                <div class="card-body p-0">
+                    <nav class="nav flex-column">
+                        <a class="nav-link" href="#getting-started">🚀 Memulai</a>
+                        <a class="nav-link" href="#dashboard">📊 Dashboard</a>
+                        <a class="nav-link" href="#barang">📦 Manajemen Barang</a>
+                        <a class="nav-link" href="#transaksi">🔄 Transaksi Stok</a>
+                        <a class="nav-link" href="#tanda-terima">📝 Tanda Terima</a>
+                        <a class="nav-link" href="#barcode">📷 Scan Barcode</a>
+                        <a class="nav-link" href="#laporan">📈 Laporan</a>
+                        <a class="nav-link" href="#user">👥 Manajemen User</a>
+                        <a class="nav-link" href="#dark-mode">🌙 Dark Mode</a>
+                        <a class="nav-link" href="#faq">❓ FAQ</a>
+                    </nav>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <!-- Header -->
+            <div class="card mb-4">
+                <div class="card-body text-center py-4">
+                    <h2 class="fw-bold mb-2"><i class="bi bi-box-seam me-2"></i>Panduan Pengguna WMS</h2>
+                    <p class="text-muted mb-0">Warehouse Management System - Versi 1.0</p>
+                </div>
+            </div>
+
+            <!-- Getting Started -->
+            <div class="card mb-4" id="getting-started">
+                <div class="card-header">
+                    <h5 class="mb-0">🚀 Memulai</h5>
+                </div>
+                <div class="card-body">
+                    <h6 class="fw-semibold">Login ke Sistem</h6>
+                    <p>Untuk menggunakan sistem, Anda perlu login terlebih dahulu dengan akun yang sudah didaftarkan oleh Administrator.</p>
+                    
+                    <div class="text-center mb-3">
+                        <img src="{{ asset('images/manual/login-page.png') }}" alt="Halaman Login" class="img-fluid rounded shadow" style="max-width: 500px;">
+                        <p class="text-muted small mt-2">Gambar 1: Halaman Login</p>
+                    </div>
+
+                    <ol>
+                        <li>Buka aplikasi WMS di browser</li>
+                        <li>Masukkan <strong>Email</strong> dan <strong>Password</strong></li>
+                        <li>Klik tombol <strong>Login</strong></li>
+                    </ol>
+
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>Tip:</strong> Centang "Ingat saya" agar tidak perlu login berulang kali.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard -->
+            <div class="card mb-4" id="dashboard">
+                <div class="card-header">
+                    <h5 class="mb-0">📊 Dashboard</h5>
+                </div>
+                <div class="card-body">
+                    <p>Dashboard menampilkan ringkasan informasi penting gudang Anda:</p>
+                    
+                    <div class="text-center mb-3">
+                        <img src="{{ asset('images/manual/dashboard.png') }}" alt="Dashboard" class="img-fluid rounded shadow">
+                        <p class="text-muted small mt-2">Gambar 2: Tampilan Dashboard</p>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="fw-semibold">Kartu Statistik</h6>
+                            <ul>
+                                <li><strong>Total Barang</strong> - Jumlah item terdaftar</li>
+                                <li><strong>Stok Masuk Hari Ini</strong> - Transaksi masuk hari ini</li>
+                                <li><strong>Stok Keluar Hari Ini</strong> - Transaksi keluar hari ini</li>
+                                <li><strong>Stok Menipis</strong> - Barang di bawah minimum</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="fw-semibold">Grafik & Tabel</h6>
+                            <ul>
+                                <li><strong>Grafik Transaksi</strong> - Tren 7 hari terakhir</li>
+                                <li><strong>Barang Stok Menipis</strong> - Daftar perlu di-restock</li>
+                                <li><strong>Transaksi Terakhir</strong> - 5 transaksi terbaru</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Manajemen Barang -->
+            <div class="card mb-4" id="barang">
+                <div class="card-header">
+                    <h5 class="mb-0">📦 Manajemen Barang</h5>
+                </div>
+                <div class="card-body">
+                    <h6 class="fw-semibold">Daftar Barang</h6>
+                    <p>Lihat semua barang yang tersimpan di gudang. Gunakan filter untuk mencari barang spesifik.</p>
+                    
+                    <div class="text-center mb-3">
+                        <img src="{{ asset('images/manual/items-list.png') }}" alt="Daftar Barang" class="img-fluid rounded shadow">
+                        <p class="text-muted small mt-2">Gambar 3: Daftar Barang dengan Filter</p>
+                    </div>
+
+                    <h6 class="fw-semibold mt-4">Tambah Barang Baru</h6>
+                    <p>Klik tombol <strong>"+ Tambah Barang"</strong> untuk menambah barang baru.</p>
+                    
+                    <div class="text-center mb-3">
+                        <img src="{{ asset('images/manual/add-item.png') }}" alt="Tambah Barang" class="img-fluid rounded shadow" style="max-width: 600px;">
+                        <p class="text-muted small mt-2">Gambar 4: Form Tambah Barang dengan Scan Barcode</p>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Field yang harus diisi:</h6>
+                            <ul>
+                                <li><strong>Kode Barang</strong> - Dapat scan atau input manual</li>
+                                <li><strong>Nama Barang</strong> - Nama lengkap item</li>
+                                <li><strong>Kategori</strong> - Pilih dari daftar</li>
+                                <li><strong>Satuan</strong> - Pilih unit (pcs, kg, dll)</li>
+                                <li><strong>Stok Awal</strong> - Jumlah awal</li>
+                                <li><strong>Minimum Stok</strong> - Batas notifikasi</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="alert alert-success">
+                                <i class="bi bi-upc-scan me-2"></i>
+                                <strong>Fitur Scan Barcode:</strong><br>
+                                Klik "Mulai Scan" untuk mengaktifkan kamera dan scan barcode produk secara otomatis.
+                            </div>
+                        </div>
+                    </div>
+
+                    <h6 class="fw-semibold mt-4">Detail Barang</h6>
+                    <p>Klik nama barang untuk melihat detail lengkap termasuk barcode dan riwayat transaksi.</p>
+                    
+                    <div class="text-center mb-3">
+                        <img src="{{ asset('images/manual/item-detail.png') }}" alt="Detail Barang" class="img-fluid rounded shadow" style="max-width: 600px;">
+                        <p class="text-muted small mt-2">Gambar 5: Detail Barang dengan Barcode</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Transaksi Stok -->
+            <div class="card mb-4" id="transaksi">
+                <div class="card-header">
+                    <h5 class="mb-0">🔄 Transaksi Stok</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info mb-4">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>Fitur Baru:</strong> Satu transaksi sekarang dapat berisi banyak barang sekaligus!
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="fw-semibold text-success"><i class="bi bi-box-arrow-in-down me-1"></i> Stok Masuk</h6>
+                            <p>Catat barang yang masuk ke gudang (pembelian, retur, dll) dalam satu dokumen transaksi.</p>
+                            
+                            <div class="text-center mb-3">
+                                <img src="{{ asset('images/manual/stock-in.png') }}" alt="Stok Masuk" class="img-fluid rounded shadow">
+                                <p class="text-muted small mt-2">Gambar 6: Form Stok Masuk Multi-Item</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="fw-semibold text-danger"><i class="bi bi-box-arrow-up me-1"></i> Stok Keluar</h6>
+                            <p>Catat barang yang keluar dari gudang (penjualan, rusak, dll) dalam satu dokumen transaksi.</p>
+                            
+                            <div class="text-center mb-3">
+                                <img src="{{ asset('images/manual/stock-out.png') }}" alt="Stok Keluar" class="img-fluid rounded shadow">
+                                <p class="text-muted small mt-2">Gambar 7: Form Stok Keluar Multi-Item</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <h6 class="fw-semibold">Langkah Transaksi Multi-Item:</h6>
+                    <ol>
+                        <li>Klik <strong>"Stok Masuk"</strong> atau <strong>"Stok Keluar"</strong> di sidebar</li>
+                        <li>Isi <strong>Catatan Transaksi</strong> jika diperlukan</li>
+                        <li>Klik <strong>"+ Tambah Barang"</strong> untuk menambah baris item</li>
+                        <li>Untuk setiap item: pilih barang, masukkan jumlah, tambah catatan item (opsional)</li>
+                        <li>Klik tombol <strong>Simpan Transaksi</strong></li>
+                    </ol>
+
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        <strong>Perhatian:</strong> Stok keluar tidak bisa melebihi stok tersedia untuk setiap item!
+                    </div>
+
+                    <h6 class="fw-semibold mt-4">Riwayat Transaksi</h6>
+                    <p>Lihat semua dokumen transaksi dengan informasi total item, total quantity, dan status tanda terima.</p>
+                    
+                    <div class="text-center mb-3">
+                        <img src="{{ asset('images/manual/transaction-history.png') }}" alt="Riwayat Transaksi" class="img-fluid rounded shadow">
+                        <p class="text-muted small mt-2">Gambar 8: Daftar Dokumen Transaksi</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tanda Terima -->
+            <div class="card mb-4" id="tanda-terima">
+                <div class="card-header">
+                    <h5 class="mb-0">📝 Tanda Terima (Baru!)</h5>
+                </div>
+                <div class="card-body">
+                    <p>Setiap transaksi stok dapat dilengkapi dengan tanda terima resmi yang mencakup daftar barang dan tanda tangan digital.</p>
+                    
+                    <div class="text-center mb-4">
+                        <img src="{{ asset('images/manual/receipt-form.png') }}" alt="Form Tanda Terima" class="img-fluid rounded shadow" style="max-width: 700px;">
+                        <p class="text-muted small mt-2">Gambar 9: Form Input Tanda Tangan Digital</p>
+                    </div>
+
+                    <h6 class="fw-semibold">Fitur Tanda Terima:</h6>
+                    <ul>
+                        <li><i class="bi bi-check text-success me-1"></i> Menampilkan semua barang dalam satu dokumen</li>
+                        <li><i class="bi bi-check text-success me-1"></i> Tanda tangan digital dengan canvas (gambar langsung)</li>
+                        <li><i class="bi bi-check text-success me-1"></i> Opsi upload gambar tanda tangan</li>
+                        <li><i class="bi bi-check text-success me-1"></i> Export ke PDF untuk dicetak</li>
+                        <li><i class="bi bi-check text-success me-1"></i> Penguncian dokumen setelah ditandatangani</li>
+                    </ul>
+
+                    <h6 class="fw-semibold mt-4">Langkah Generate Tanda Terima:</h6>
+                    <ol>
+                        <li>Buka <strong>Riwayat Transaksi</strong></li>
+                        <li>Klik dropdown ⋮ pada transaksi yang diinginkan</li>
+                        <li>Pilih <strong>"Tanda Terima"</strong></li>
+                        <li>Isi nama <strong>Pengirim</strong> dan <strong>Penerima</strong></li>
+                        <li>Gambar tanda tangan di canvas atau upload gambar</li>
+                        <li>Centang <strong>"Kunci tanda terima"</strong> jika sudah final</li>
+                        <li>Klik <strong>"Simpan Tanda Tangan"</strong></li>
+                        <li>Download PDF dengan tombol <strong>"Download PDF"</strong></li>
+                    </ol>
+
+                    <div class="text-center mb-3">
+                        <img src="{{ asset('images/manual/receipt-pdf.png') }}" alt="PDF Tanda Terima" class="img-fluid rounded shadow" style="max-width: 500px;">
+                        <p class="text-muted small mt-2">Gambar 10: Contoh PDF Tanda Terima</p>
+                    </div>
+
+                    <div class="alert alert-danger">
+                        <i class="bi bi-lock me-2"></i>
+                        <strong>Perhatian:</strong> Setelah tanda terima dikunci, dokumen tidak dapat diubah lagi. Pastikan semua informasi sudah benar sebelum mengunci!
+                    </div>
+                </div>
+            </div>
+
+            <!-- Barcode Scanner -->
+            <div class="card mb-4" id="barcode">
+                <div class="card-header">
+                    <h5 class="mb-0">📷 Scan Barcode (Multi-Item)</h5>
+                </div>
+                <div class="card-body">
+                    <p>Fitur scan barcode telah diperbarui dengan sistem <strong>Keranjang (Cart)</strong>, memungkinkan Anda men-scan banyak barang sekaligus sebelum disimpan.</p>
+                    
+                    <div class="text-center mb-3">
+                        <img src="{{ asset('images/manual/barcode-scanner.png') }}" alt="Barcode Scanner Multi-Item" class="img-fluid rounded shadow" style="max-width: 500px;">
+                        <p class="text-muted small mt-2">Gambar 9: Halaman Scan Barcode dengan Sistem Keranjang</p>
+                    </div>
+
+                    <h6 class="fw-semibold">Cara Menggunakan:</h6>
+                    <ol>
+                        <li>Pilih <strong>Mode Transaksi</strong> di panel kiri (Stok Masuk / Stok Keluar).</li>
+                        <li>Klik <strong>"Mulai Kamera"</strong> dan arahkan ke barcode barang.</li>
+                        <li>Barang yang discan akan otomatis masuk ke <strong>Tabel Keranjang</strong> di sebelah kanan.</li>
+                        <li>Scan barang yang sama berulang kali akan <strong>menambah jumlah (quantity)</strong> secara otomatis.</li>
+                        <li>Anda juga bisa mengubah jumlah secara manual dengan tombol (+) atau (-).</li>
+                        <li>Jika semua barang sudah masuk, klik tombol <strong>"Proses Transaksi"</strong> untuk menyimpan semua item dalam satu dokumen.</li>
+                    </ol>
+
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        <strong>Validasi Stok Keluar:</strong><br>
+                        Jika memilih mode <strong>Stok Keluar</strong>, sistem akan memberi peringatan dan mencegah proses jika jumlah barang yang discan melebihi stok yang tersedia di gudang.
+                    </div>
+
+                    <div class="alert alert-info">
+                        <i class="bi bi-phone me-2"></i>
+                        <strong>Akses dari HP:</strong><br>
+                        Untuk scan dengan kamera HP, akses aplikasi menggunakan IP komputer: <code>http://[IP_KOMPUTER]:8000</code>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <h6 class="fw-semibold mt-4">Cetak Barcode</h6>
+                    <p>Setiap barang memiliki barcode unik yang bisa dicetak.</p>
+                    
+                    <div class="text-center mb-3">
+                        <img src="{{ asset('images/manual/print-barcode.png') }}" alt="Cetak Barcode" class="img-fluid rounded shadow" style="max-width: 400px;">
+                        <p class="text-muted small mt-2">Gambar 10: Preview Cetak Barcode</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Laporan -->
+            <div class="card mb-4" id="laporan">
+                <div class="card-header">
+                    <h5 class="mb-0">📈 Laporan</h5>
+                </div>
+                <div class="card-body">
+                    <p>Sistem menyediakan berbagai laporan untuk analisis gudang:</p>
+                    
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <div class="card h-100 border-primary">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-calendar-day text-primary fs-1"></i>
+                                    <h6 class="mt-2">Laporan Harian</h6>
+                                    <p class="small text-muted">Transaksi per tanggal</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="card h-100 border-success">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-calendar-month text-success fs-1"></i>
+                                    <h6 class="mt-2">Laporan Bulanan</h6>
+                                    <p class="small text-muted">Rangkuman per bulan</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="card h-100 border-info">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-box-seam text-info fs-1"></i>
+                                    <h6 class="mt-2">Laporan Stok</h6>
+                                    <p class="small text-muted">Stok semua barang</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center mb-3">
+                        <img src="{{ asset('images/manual/reports.png') }}" alt="Halaman Laporan" class="img-fluid rounded shadow">
+                        <p class="text-muted small mt-2">Gambar 11: Menu Laporan</p>
+                    </div>
+
+                    <h6 class="fw-semibold">Export Laporan</h6>
+                    <p>Semua laporan dapat di-export ke format:</p>
+                    <ul>
+                        <li><i class="bi bi-file-pdf text-danger me-1"></i> <strong>PDF</strong> - Untuk print atau arsip</li>
+                        <li><i class="bi bi-file-excel text-success me-1"></i> <strong>Excel</strong> - Untuk analisis lanjutan</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- User Management -->
+            <div class="card mb-4" id="user">
+                <div class="card-header">
+                    <h5 class="mb-0">👥 Manajemen User (Admin Only)</h5>
+                </div>
+                <div class="card-body">
+                    <p>Hanya Admin yang dapat mengelola pengguna sistem.</p>
+                    
+                    <div class="text-center mb-3">
+                        <img src="{{ asset('images/manual/users-list.png') }}" alt="Daftar User" class="img-fluid rounded shadow">
+                        <p class="text-muted small mt-2">Gambar 12: Daftar User</p>
+                    </div>
+
+                    <h6 class="fw-semibold">Role Pengguna:</h6>
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Role</th>
+                                <th>Hak Akses</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="badge bg-danger">Admin</span></td>
+                                <td>Akses penuh ke semua fitur termasuk kelola user</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge bg-primary">Staff</span></td>
+                                <td>Lihat barang, transaksi stok masuk/keluar, scan barcode</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge bg-warning text-dark">Owner</span></td>
+                                <td>Lihat barang, lihat transaksi, akses laporan</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Dark Mode -->
+            <div class="card mb-4" id="dark-mode">
+                <div class="card-header">
+                    <h5 class="mb-0">🌙 Dark Mode</h5>
+                </div>
+                <div class="card-body">
+                    <p>Aplikasi mendukung mode gelap untuk kenyamanan mata.</p>
+                    
+                    <div class="row">
+                        <div class="col-md-6 text-center mb-3">
+                            <img src="{{ asset('images/manual/light-mode.png') }}" alt="Light Mode" class="img-fluid rounded shadow">
+                            <p class="text-muted small mt-2">Gambar 13: Light Mode</p>
+                        </div>
+                        <div class="col-md-6 text-center mb-3">
+                            <img src="{{ asset('images/manual/dark-mode.png') }}" alt="Dark Mode" class="img-fluid rounded shadow">
+                            <p class="text-muted small mt-2">Gambar 14: Dark Mode</p>
+                        </div>
+                    </div>
+
+                    <h6 class="fw-semibold">Cara Mengaktifkan:</h6>
+                    <ol>
+                        <li>Klik icon <i class="bi bi-moon-fill"></i> (bulan) di topbar</li>
+                        <li>Mode akan berganti ke Dark Mode</li>
+                        <li>Klik icon <i class="bi bi-sun-fill"></i> (matahari) untuk kembali ke Light Mode</li>
+                    </ol>
+
+                    <div class="alert alert-success">
+                        <i class="bi bi-check-circle me-2"></i>
+                        Pilihan tema akan tersimpan otomatis di browser Anda.
+                    </div>
+                </div>
+            </div>
+
+            <!-- FAQ -->
+            <div class="card mb-4" id="faq">
+                <div class="card-header">
+                    <h5 class="mb-0">❓ FAQ (Pertanyaan Umum)</h5>
+                </div>
+                <div class="card-body">
+                    <div class="accordion" id="faqAccordion">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                                    Kenapa kamera tidak bisa diakses?
+                                </button>
+                            </h2>
+                            <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    Kamera membutuhkan koneksi <strong>HTTPS</strong> atau akses via <strong>localhost</strong>. 
+                                    Jika akses dari HP via IP, gunakan Chrome flags untuk mengizinkan origin tidak aman.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                                    Bagaimana cara mengakses dari HP?
+                                </button>
+                            </h2>
+                            <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    <ol>
+                                        <li>Pastikan HP dan komputer di WiFi yang sama</li>
+                                        <li>Jalankan server dengan: <code>php artisan serve --host=0.0.0.0</code></li>
+                                        <li>Akses dari HP: <code>http://[IP_KOMPUTER]:8000</code></li>
+                                    </ol>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                                    Lupa password, bagaimana cara reset?
+                                </button>
+                            </h2>
+                            <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    Hubungi Administrator untuk mereset password akun Anda.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+                                    Apakah bisa menghapus transaksi?
+                                </button>
+                            </h2>
+                            <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    Ya, Admin dapat menghapus transaksi dari halaman riwayat transaksi 
+                                    <strong>selama tanda terima belum dikunci</strong>. 
+                                    Stok akan otomatis dikembalikan/dikurangi sesuai tipe transaksi.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq5">
+                                    Bagaimana cara menambah banyak barang dalam satu transaksi?
+                                </button>
+                            </h2>
+                            <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    <ol>
+                                        <li>Buka form Stok Masuk atau Stok Keluar</li>
+                                        <li>Klik tombol <strong>"+ Tambah Barang"</strong></li>
+                                        <li>Untuk setiap baris, pilih barang dan masukkan jumlah</li>
+                                        <li>Ulangi langkah 2-3 untuk menambah item lainnya</li>
+                                        <li>Klik <strong>"Simpan Transaksi"</strong> untuk menyimpan semua item sekaligus</li>
+                                    </ol>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq6">
+                                    Apa yang terjadi setelah tanda terima dikunci?
+                                </button>
+                            </h2>
+                            <div id="faq6" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    Setelah dikunci:
+                                    <ul>
+                                        <li>Tanda tangan tidak bisa diubah lagi</li>
+                                        <li>Transaksi tidak bisa dihapus (bahkan oleh Admin)</li>
+                                        <li>PDF tanda terima bisa diunduh kapan saja</li>
+                                    </ul>
+                                    <strong>Pastikan semua informasi sudah benar sebelum mengunci!</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="text-center text-muted py-4">
+                <p class="mb-0">Warehouse Management System © {{ date('Y') }}</p>
+                <small>Versi 1.0 - Dokumentasi terakhir diperbarui: {{ date('d M Y') }}</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+@push('styles')
+<style>
+    .nav-link {
+        color: var(--text-secondary);
+        padding: 0.5rem 1rem;
+        border-left: 3px solid transparent;
+    }
+    .nav-link:hover {
+        color: var(--primary);
+        background: var(--table-hover);
+        border-left-color: var(--primary);
+    }
+    html {
+        scroll-behavior: smooth;
+    }
+</style>
+@endpush
+@endsection

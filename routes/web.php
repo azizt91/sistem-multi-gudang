@@ -64,7 +64,11 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['role:admin,staff'])->group(function () {
         Route::get('/stock-in/new', [StockHeaderController::class, 'createStockIn'])->name('stock-headers.create-in');
         Route::get('/stock-out/new', [StockHeaderController::class, 'createStockOut'])->name('stock-headers.create-out');
+        Route::get('/stock-out/new', [StockHeaderController::class, 'createStockOut'])->name('stock-headers.create-out');
         Route::post('/stock-headers', [StockHeaderController::class, 'store'])->name('stock-headers.store');
+
+        // Stock Transfer (Inter-Warehouse)
+        Route::resource('stock-transfers', \App\Http\Controllers\StockTransferController::class);
     });
 
     // Admin only can delete
@@ -86,9 +90,18 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/monthly', [ReportController::class, 'monthly'])->name('monthly');
         Route::get('/stock', [ReportController::class, 'stock'])->name('stock');
         Route::get('/daily/pdf', [ReportController::class, 'exportDailyPdf'])->name('daily.pdf');
+        Route::get('/daily/excel', [ReportController::class, 'exportDailyExcel'])->name('daily.excel');
         Route::get('/monthly/pdf', [ReportController::class, 'exportMonthlyPdf'])->name('monthly.pdf');
+        Route::get('/monthly/excel', [ReportController::class, 'exportMonthlyExcel'])->name('monthly.excel');
         Route::get('/stock/excel', [ReportController::class, 'exportStockExcel'])->name('stock.excel');
         Route::get('/transactions/excel', [ReportController::class, 'exportTransactionsExcel'])->name('transactions.excel');
+        Route::get('/stock/excel', [ReportController::class, 'exportStockExcel'])->name('stock.excel');
+        Route::get('/transactions/excel', [ReportController::class, 'exportTransactionsExcel'])->name('transactions.excel');
+    });
+
+    // Audit Logs (Admin and Owner only)
+    Route::middleware(['role:admin,owner'])->group(function () {
+        Route::get('/audit-logs', [\App\Http\Controllers\AuditLogController::class, 'index'])->name('audit-logs.index');
     });
 
     // Admin only routes
@@ -101,6 +114,13 @@ Route::middleware(['auth'])->group(function () {
 
         // Users
         Route::resource('users', UserController::class);
+
+        // Warehouses (Multi-Warehouse)
+        Route::resource('warehouses', \App\Http\Controllers\WarehouseController::class);
+
+        // Company Profile (Settings)
+        Route::get('/company-profile', [\App\Http\Controllers\CompanyProfileController::class, 'edit'])->name('company-profile.edit');
+        Route::put('/company-profile', [\App\Http\Controllers\CompanyProfileController::class, 'update'])->name('company-profile.update');
 
         // Delete transactions (Legacy - Disabled)
         // Route::delete('/transactions/{transaction}', [StockTransactionController::class, 'destroy'])->name('transactions.destroy');

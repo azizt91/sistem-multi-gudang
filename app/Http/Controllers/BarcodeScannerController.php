@@ -9,7 +9,35 @@ class BarcodeScannerController extends Controller
 {
     public function index()
     {
-        return view('barcode.scanner');
+        if (auth()->user()->isOwner()) {
+            abort(403);
+        }
+
+        // Scope warehouses
+        $warehouses = auth()->user()->isStaff()
+            ? \App\Models\Warehouse::where('id', auth()->user()->warehouse_id)->get()
+            : \App\Models\Warehouse::orderBy('name')->get();
+
+        return view('barcode.scanner', compact('warehouses'));
+    }
+
+    public function submitTransaction(Request $request)
+    {
+        if (auth()->user()->isOwner()) abort(403);
+
+        $validated = $request->validate([
+            'items' => 'required|array',
+            'items.*.id' => 'required|exists:items,id',
+            'items.*.quantity' => 'required|integer|min:1',
+            'type' => 'required|in:in,out',
+            'notes' => 'nullable|string',
+            'warehouse_id' => 'required|exists:warehouses,id',
+        ]);
+
+        // Security Check
+        if (auth()->user()->isStaff() && $validated['warehouse_id'] != auth()->user()->warehouse_id) {
+             return response()->json(['success' => false, 'message' => 'Akses ditolak.'], 403);
+        }
     }
 
     public function search(Request $request)

@@ -46,6 +46,10 @@
                                 <td><strong>Petugas</strong></td>
                                 <td>{{ $stockHeader->user->name }}</td>
                             </tr>
+                            <tr>
+                                <td><strong>Gudang</strong></td>
+                                <td>{{ $stockHeader->warehouse->name ?? '-' }}</td>
+                            </tr>
                         </table>
                     </div>
                     <div class="col-md-6">

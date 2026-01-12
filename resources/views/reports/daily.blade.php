@@ -9,8 +9,11 @@
         <p class="text-muted mb-0">Transaksi tanggal: {{ $date->format('d F Y') }}</p>
     </div>
     <div>
-        <a href="{{ route('reports.daily.pdf', ['date' => $date->toDateString()]) }}" class="btn btn-danger">
+        <a href="{{ route('reports.daily.pdf', ['date' => $date->toDateString(), 'warehouse_id' => request('warehouse_id')]) }}" class="btn btn-danger">
             <i class="bi bi-file-earmark-pdf me-1"></i> Export PDF
+        </a>
+        <a href="{{ route('reports.daily.excel', ['date' => $date->toDateString(), 'warehouse_id' => request('warehouse_id')]) }}" class="btn btn-success ms-2">
+            <i class="bi bi-file-earmark-excel me-1"></i> Export Excel
         </a>
     </div>
 </div>
@@ -19,7 +22,18 @@
 <div class="card mb-4">
     <div class="card-body">
         <form action="{{ route('reports.daily') }}" method="GET" class="row g-3 align-items-end">
-            <div class="col-md-4">
+            <div class="col-md-3">
+                <label class="form-label">Gudang</label>
+                <select name="warehouse_id" class="form-select">
+                    <option value="">Semua Gudang</option>
+                    @foreach($warehouses as $w)
+                        <option value="{{ $w->id }}" {{ request('warehouse_id') == $w->id ? 'selected' : '' }}>
+                            {{ $w->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="col-md-3">
                 <label class="form-label">Pilih Tanggal</label>
                 <input type="date" name="date" class="form-control" value="{{ $date->toDateString() }}">
             </div>

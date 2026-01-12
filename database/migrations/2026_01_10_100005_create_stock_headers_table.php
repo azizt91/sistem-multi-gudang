@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('stock_headers', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('warehouse_id')->nullable()->constrained()->onDelete('set null');
             $table->string('document_number')->unique();
             $table->enum('type', ['in', 'out']);
             $table->dateTime('transaction_date');
@@ -27,6 +28,7 @@ return new class extends Migration
             
             // Created by
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('stock_transfer_id')->nullable()->constrained('stock_transfers')->nullOnDelete();
             
             $table->timestamps();
         });

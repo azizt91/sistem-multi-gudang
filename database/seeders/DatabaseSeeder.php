@@ -16,27 +16,38 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create Users
-        $admin = User::create([
-            'name' => 'Administrator',
-            'email' => 'admin@warehouse.test',
-            'password' => bcrypt('password'),
-            'role' => 'admin',
+        $this->call([
+            WarehouseSeeder::class,
+            CompanyProfileSeeder::class,
         ]);
 
-        User::create([
-            'name' => 'Staff Gudang',
-            'email' => 'staff@warehouse.test',
-            'password' => bcrypt('password'),
-            'role' => 'staff',
-        ]);
+        // Create Users (use firstOrCreate to avoid duplicates)
+        $admin = User::firstOrCreate(
+            ['email' => 'admin@warehouse.test'],
+            [
+                'name' => 'Administrator',
+                'password' => bcrypt('password'),
+                'role' => 'admin',
+            ]
+        );
 
-        User::create([
-            'name' => 'Owner',
-            'email' => 'owner@warehouse.test',
-            'password' => bcrypt('password'),
-            'role' => 'owner',
-        ]);
+        User::firstOrCreate(
+            ['email' => 'staff@warehouse.test'],
+            [
+                'name' => 'Staff Gudang',
+                'password' => bcrypt('password'),
+                'role' => 'staff',
+            ]
+        );
+
+        User::firstOrCreate(
+            ['email' => 'owner@warehouse.test'],
+            [
+                'name' => 'Owner',
+                'password' => bcrypt('password'),
+                'role' => 'owner',
+            ]
+        );
 
         // Create Categories
         $categories = [
@@ -47,11 +58,20 @@ class DatabaseSeeder extends Seeder
             ['name' => 'Peralatan', 'description' => 'Alat-alat dan tools'],
         ];
 
+        // Create Categories (idempotent)
+        $categories = [
+            ['name' => 'Elektronik', 'description' => 'Barang-barang elektronik'],
+            ['name' => 'Bahan Bangunan', 'description' => 'Material konstruksi dan bangunan'],
+            ['name' => 'Alat Tulis', 'description' => 'Perlengkapan kantor dan alat tulis'],
+            ['name' => 'Makanan & Minuman', 'description' => 'Produk konsumsi'],
+            ['name' => 'Peralatan', 'description' => 'Alat-alat dan tools'],
+        ];
+
         foreach ($categories as $category) {
-            Category::create($category);
+            Category::firstOrCreate(['name' => $category['name']], $category);
         }
 
-        // Create Units
+        // Create Units (idempotent)
         $units = [
             ['name' => 'Piece', 'abbreviation' => 'Pcs'],
             ['name' => 'Kilogram', 'abbreviation' => 'Kg'],
@@ -66,10 +86,10 @@ class DatabaseSeeder extends Seeder
         ];
 
         foreach ($units as $unit) {
-            Unit::create($unit);
+            Unit::firstOrCreate(['abbreviation' => $unit['abbreviation']], $unit);
         }
 
-        // Create Sample Items
+        // Create Sample Items (idempotent - check by code)
         $items = [
             ['code' => 'BRG00001', 'name' => 'Laptop Asus VivoBook', 'category_id' => 1, 'unit_id' => 1, 'stock' => 25, 'minimum_stock' => 5, 'rack_location' => 'A-01'],
             ['code' => 'BRG00002', 'name' => 'Mouse Wireless Logitech', 'category_id' => 1, 'unit_id' => 1, 'stock' => 50, 'minimum_stock' => 10, 'rack_location' => 'A-02'],
@@ -89,40 +109,65 @@ class DatabaseSeeder extends Seeder
         ];
 
         foreach ($items as $item) {
-            Item::create($item);
+            Item::firstOrCreate(['code' => $item['code']], $item);
         }
 
-        // Create sample transactions
-        $sampleTransactions = [
-            ['item_id' => 1, 'type' => 'in', 'quantity' => 10, 'notes' => 'Pembelian awal'],
-            ['item_id' => 1, 'type' => 'out', 'quantity' => 2, 'notes' => 'Pengiriman ke cabang A'],
-            ['item_id' => 2, 'type' => 'in', 'quantity' => 25, 'notes' => 'Restok dari supplier'],
-            ['item_id' => 4, 'type' => 'in', 'quantity' => 50, 'notes' => 'Pembelian semen'],
-            ['item_id' => 4, 'type' => 'out', 'quantity' => 10, 'notes' => 'Pengiriman proyek X'],
-            ['item_id' => 7, 'type' => 'in', 'quantity' => 30, 'notes' => 'Pembelian kertas bulanan'],
-            ['item_id' => 10, 'type' => 'out', 'quantity' => 5, 'notes' => 'Pemakaian internal'],
-        ];
+        // Distribute stock across all warehouses
+        $warehouses = \App\Models\Warehouse::all();
+        
+        if ($warehouses->count() > 0 && StockTransaction::count() === 0) {
+            foreach ($warehouses as $warehouse) {
+                // Determine which items are stocked in this warehouse (e.g., 80% of items)
+                foreach ($items as $itemData) {
+                    // Randomly skip some items for variety, but ensure at least some common ones exist
+                    // Let's say 70% chance an item exists in a warehouse
+                    if (rand(1, 100) > 70) continue;
 
-        foreach ($sampleTransactions as $index => $txData) {
-            $item = Item::find($txData['item_id']);
-            $stockBefore = $item->stock;
-            
-            if ($txData['type'] === 'in') {
-                $stockAfter = $stockBefore; // Stock already set in items
-            } else {
-                $stockAfter = $stockBefore; // Stock already set in items
+                    $item = Item::where('code', $itemData['code'])->first();
+                    if (!$item) continue;
+
+                    // Generate random stock
+                    $quantity = rand(10, 100);
+                    $date = now()->subDays(rand(1, 30))->subHours(rand(1, 12));
+                    
+                    // Create partial low stock scenarios
+                    if (rand(1, 10) > 8) {
+                        $quantity = rand(1, 5); // Low stock scenario
+                    }
+
+                    // Create Header
+                    $header = \App\Models\StockHeader::create([
+                        'document_number' => 'DOC-' . $warehouse->code . '-' . date('Ymd', strtotime($date)) . '-' . rand(1000, 9999),
+                        'type' => 'in',
+                        'transaction_date' => $date,
+                        'user_id' => $admin->id,
+                        'notes' => 'Stok awal ' . $warehouse->name,
+                        'warehouse_id' => $warehouse->id,
+                    ]);
+                    
+                    // Create Transaction
+                    StockTransaction::create([
+                        'stock_header_id' => $header->id,
+                        'item_id' => $item->id,
+                        'user_id' => $admin->id,
+                        'type' => 'in',
+                        'quantity' => $quantity,
+                        'stock_before' => 0,
+                        'stock_after' => $quantity,
+                        'notes' => 'Setup awal',
+                        'transaction_date' => $date,
+                    ]);
+
+                    // Update Warehouse Item Stock
+                    \App\Models\WarehouseItem::updateOrCreate(
+                        ['warehouse_id' => $warehouse->id, 'item_id' => $item->id],
+                        [
+                            'stock' => $quantity, 
+                            'minimum_stock' => $item->minimum_stock ?? 10
+                        ]
+                    );
+                }
             }
-
-            StockTransaction::create([
-                'item_id' => $txData['item_id'],
-                'user_id' => $admin->id,
-                'type' => $txData['type'],
-                'quantity' => $txData['quantity'],
-                'stock_before' => $stockBefore - ($txData['type'] === 'in' ? $txData['quantity'] : -$txData['quantity']),
-                'stock_after' => $stockBefore,
-                'notes' => $txData['notes'],
-                'transaction_date' => now()->subDays(rand(0, 6))->subHours(rand(1, 12)),
-            ]);
         }
 
         $this->command->info('Database seeded successfully!');

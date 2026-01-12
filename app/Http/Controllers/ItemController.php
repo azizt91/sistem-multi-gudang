@@ -23,6 +23,13 @@ class ItemController extends Controller
             $query->where('category_id', $request->category_id);
         }
 
+        // Filter by warehouse (if needed to show items present in specific warehouse)
+        if ($request->filled('warehouse_id')) {
+             $query->whereHas('warehouseItems', function($q) use ($request) {
+                $q->where('warehouse_id', $request->warehouse_id);
+             });
+        }
+
         // Filter by low stock
         if ($request->boolean('low_stock')) {
             $query->lowStock();
@@ -30,8 +37,13 @@ class ItemController extends Controller
 
         $items = $query->orderBy('name')->paginate(15);
         $categories = Category::orderBy('name')->get();
+        $warehouses = \App\Models\Warehouse::orderBy('name')->get();
 
-        return view('items.index', compact('items', 'categories'));
+        if ($request->ajax()) {
+            return view('items.partials.table', compact('items'))->render();
+        }
+
+        return view('items.index', compact('items', 'categories', 'warehouses'));
     }
 
     public function create()
@@ -176,6 +188,10 @@ class ItemController extends Controller
             ], 404);
         }
 
+        // Check if warehouse context is provided
+        $warehouseId = $request->input('warehouse_id');
+        $stock = $warehouseId ? $item->getStockInWarehouse($warehouseId) : $item->stock;
+
         return response()->json([
             'success' => true,
             'item' => [
@@ -184,9 +200,10 @@ class ItemController extends Controller
                 'name' => $item->name,
                 'category' => $item->category->name,
                 'unit' => $item->unit->abbreviation,
-                'stock' => $item->stock,
+                'stock' => $stock,
                 'rack_location' => $item->rack_location,
                 'is_low_stock' => $item->isLowStock(),
+                'warehouse_id' => $warehouseId, // Echo back
             ],
         ]);
     }

@@ -90,6 +90,25 @@
                     @csrf
                     <input type="hidden" name="type" value="{{ $type }}">
 
+                    <div class="mb-4">
+                        <label for="warehouse_id" class="form-label">Gudang <span class="text-danger">*</span></label>
+                        
+                        @if($warehouses->count() === 1)
+                            {{-- Staff: Auto-select and hide dropdown --}}
+                            <input type="hidden" name="warehouse_id" value="{{ $warehouses->first()->id }}">
+                            <input type="text" class="form-control bg-light" value="{{ $warehouses->first()->name }} ({{ $warehouses->first()->city ?? 'Utama' }})" readonly>
+                        @else
+                            {{-- Admin: Show dropdown --}}
+                            <select name="warehouse_id" id="warehouse_id" class="form-select" required>
+                                @foreach($warehouses as $w)
+                                    <option value="{{ $w->id }}" {{ old('warehouse_id') == $w->id ? 'selected' : '' }}>
+                                        {{ $w->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        @endif
+                    </div>
+
                     <!-- Header Notes -->
                     <div class="mb-4">
                         <label for="notes" class="form-label">Catatan Transaksi</label>

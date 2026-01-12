@@ -35,7 +35,15 @@
             <div class="card-body p-4" style="background: white; color: #000;">
                 <!-- Company Header -->
                 <div class="text-center mb-4 pb-3 border-bottom">
-                    <h4 class="fw-bold mb-1">TANDA TERIMA</h4>
+                    @php
+                        $profile = \App\Models\CompanyProfile::first();
+                    @endphp
+                    @if($profile && $profile->logo_url)
+                        <img src="{{ $profile->logo_url }}" alt="Logo" style="height: 50px; margin-bottom: 10px;">
+                    @endif
+                    <h4 class="fw-bold mb-1">{{ $profile->company_name ?? 'WMS' }}</h4>
+                    <p class="mb-0 text-muted">{{ $profile->address ?? '' }}</p>
+                    <h5 class="fw-bold mt-3">TANDA TERIMA</h5>
                     <p class="mb-0">{{ $stockHeader->type_label }}</p>
                 </div>
 
@@ -46,6 +54,10 @@
                             <tr>
                                 <td width="140"><strong>No. Dokumen</strong></td>
                                 <td>: {{ $stockHeader->document_number }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Gudang</strong></td>
+                                <td>: {{ $stockHeader->warehouse->name ?? '-' }}</td>
                             </tr>
                             <tr>
                                 <td><strong>Tanggal</strong></td>

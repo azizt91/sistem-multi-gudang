@@ -49,6 +49,7 @@
                         <th>Nama</th>
                         <th>Email</th>
                         <th>Role</th>
+                        <th>Gudang</th>
                         <th>Dibuat</th>
                         <th style="width: 150px;">Aksi</th>
                     </tr>
@@ -74,6 +75,7 @@
                             @endphp
                             <span class="badge {{ $badgeClass }}">{{ \App\Models\User::getRoles()[$user->role] ?? $user->role }}</span>
                         </td>
+                        <td>{{ $user->warehouse->name ?? '-' }}</td>
                         <td>{{ $user->created_at->format('d/m/Y') }}</td>
                         <td>
                             <div class="dropdown">

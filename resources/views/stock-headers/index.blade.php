@@ -25,6 +25,22 @@
     <div class="card-body">
         <form action="{{ route('stock-headers.index') }}" method="GET" class="row g-3">
             <div class="col-md-3">
+                <label class="form-label small">Gudang</label>
+                @if(auth()->user()->isAdmin() || auth()->user()->isOwner())
+                    <select name="warehouse_id" class="form-select">
+                        <option value="">Semua Gudang</option>
+                        @foreach($warehouses as $w)
+                            <option value="{{ $w->id }}" {{ request('warehouse_id') == $w->id ? 'selected' : '' }}>
+                                {{ $w->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                @else
+                    <input type="text" class="form-control bg-light" value="{{ auth()->user()->warehouse->name ?? '-' }}" readonly>
+                    <input type="hidden" name="warehouse_id" value="{{ auth()->user()->warehouse_id }}">
+                @endif
+            </div>
+            <div class="col-md-3">
                 <label class="form-label small">Jenis Transaksi</label>
                 <select name="type" class="form-select">
                     <option value="">Semua</option>
@@ -35,10 +51,6 @@
             <div class="col-md-3">
                 <label class="form-label small">Dari Tanggal</label>
                 <input type="date" name="start_date" class="form-control" value="{{ request('start_date') }}">
-            </div>
-            <div class="col-md-3">
-                <label class="form-label small">Sampai Tanggal</label>
-                <input type="date" name="end_date" class="form-control" value="{{ request('end_date') }}">
             </div>
             <div class="col-md-3">
                 <label class="form-label small">&nbsp;</label>
@@ -58,6 +70,7 @@
                 <thead>
                     <tr>
                         <th>No. Dokumen</th>
+                        <th>Gudang</th>
                         <th>Tanggal</th>
                         <th>Jenis</th>
                         <th class="text-center">Jumlah Item</th>
@@ -74,6 +87,11 @@
                             <a href="{{ route('stock-headers.show', $header) }}" class="fw-semibold text-decoration-none">
                                 {{ $header->document_number }}
                             </a>
+                        </td>
+                        <td>
+                            <span class="badge bg-light text-dark border">
+                                <i class="bi bi-building me-1"></i>{{ $header->warehouse->name ?? '-' }}
+                            </span>
                         </td>
                         <td>{{ $header->transaction_date->format('d/m/Y H:i') }}</td>
                         <td>

@@ -13,6 +13,9 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ \App\Models\CompanyProfile::get()->favicon_url }}">
+    
     <style>
         /* ===== Theme Variables ===== */
         :root, [data-bs-theme="light"] {
@@ -545,8 +548,21 @@
     <!-- Sidebar -->
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-brand">
-            <h4><i class="bi bi-box-seam me-2"></i>WMS</h4>
-            <small>Warehouse Management</small>
+            @php
+                $globalProfile = \App\Models\CompanyProfile::first();
+            @endphp
+            <div class="d-flex align-items-center">
+                @if($globalProfile && $globalProfile->logo_url)
+                    <img src="{{ $globalProfile->logo_url }}" alt="Logo" style="height: 30px; margin-right: 10px;" class="rounded">
+                    <div>
+                        <h4 style="font-size: 0.75rem; margin: 0; line-height: 1.2; word-break: break-word;">{{ $globalProfile->company_name }}</h4>
+                        <small style="font-size: 0.65rem;">Warehouse Management</small>
+                    </div>
+                @else
+                    <h4><i class="bi bi-box-seam me-2"></i>WMS</h4>
+                    <small>Warehouse Management</small>
+                @endif
+            </div>
         </div>
         <nav class="sidebar-nav">
             <ul class="nav flex-column">
@@ -563,6 +579,11 @@
                     </a>
                 </li>
                 @if(auth()->user()->isAdmin())
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('warehouses.*') ? 'active' : '' }}" href="{{ route('warehouses.index') }}">
+                        <i class="bi bi-building"></i> Gudang
+                    </a>
+                </li>
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('categories.*') ? 'active' : '' }}" href="{{ route('categories.index') }}">
                         <i class="bi bi-tags"></i> Kategori
@@ -593,6 +614,13 @@
                         <i class="bi bi-clock-history"></i> Riwayat Transaksi
                     </a>
                 </li>
+                @if(!auth()->user()->isOwner())
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('stock-transfers.*') ? 'active' : '' }}" href="{{ route('stock-transfers.index') }}">
+                        <i class="bi bi-arrow-left-right"></i> Transfer Stok
+                    </a>
+                </li>
+                @endif
 
                 @if(auth()->user()->isAdmin() || auth()->user()->isOwner())
                 <div class="nav-section-title">Laporan</div>
@@ -617,6 +645,11 @@
 
                 @if(auth()->user()->isAdmin())
                 <div class="nav-section-title">Pengaturan</div>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('company-profile.*') ? 'active' : '' }}" href="{{ route('company-profile.edit') }}">
+                        <i class="bi bi-building-gear"></i> Profil Perusahaan
+                    </a>
+                </li>
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}" href="{{ route('users.index') }}">
                         <i class="bi bi-people"></i> Users
@@ -672,8 +705,16 @@
                             </div>
                         </li>
                         <li><hr class="dropdown-divider"></li>
-                        <li>
-                            <form action="{{ route('logout') }}" method="POST">
+                        @if(auth()->user()->isAdmin() || auth()->user()->isOwner())
+                <li class="nav-item">
+                    <a class="dropdown-item {{ request()->routeIs('audit-logs.*') ? 'active' : '' }}" href="{{ route('audit-logs.index') }}">
+                        <i class="bi bi-journal-text me-2"></i> Audit Logs
+                    </a>
+                </li>
+                @endif
+                
+                <li class="nav-item mt-3">
+                    <form action="{{ route('logout') }}" method="POST" class="d-inline">
                                 @csrf
                                 <button type="submit" class="dropdown-item">
                                     <i class="bi bi-box-arrow-right me-2"></i> Logout

@@ -15,11 +15,15 @@
                     <nav class="nav flex-column">
                         <a class="nav-link" href="#getting-started">🚀 Memulai</a>
                         <a class="nav-link" href="#dashboard">📊 Dashboard</a>
+                        <a class="nav-link" href="#profil">🏢 Profil Perusahaan</a>
+                        <a class="nav-link" href="#gudang">🏭 Manajemen Gudang</a>
                         <a class="nav-link" href="#barang">📦 Manajemen Barang</a>
                         <a class="nav-link" href="#transaksi">🔄 Transaksi Stok</a>
+                        <a class="nav-link" href="#transfer">🚚 Transfer Stok</a>
                         <a class="nav-link" href="#tanda-terima">📝 Tanda Terima</a>
                         <a class="nav-link" href="#barcode">📷 Scan Barcode</a>
                         <a class="nav-link" href="#laporan">📈 Laporan</a>
+                        <a class="nav-link" href="#audit">🛡️ Audit Logs</a>
                         <a class="nav-link" href="#user">👥 Manajemen User</a>
                         <a class="nav-link" href="#dark-mode">🌙 Dark Mode</a>
                         <a class="nav-link" href="#faq">❓ FAQ</a>
@@ -71,31 +75,121 @@
                     <h5 class="mb-0">📊 Dashboard</h5>
                 </div>
                 <div class="card-body">
-                    <p>Dashboard menampilkan ringkasan informasi penting gudang Anda:</p>
+                    <p>Dashboard adalah halaman utama yang menyajikan ringkasan visual aktivitas gudang secara realtime.</p>
                     
                     <div class="text-center mb-3">
                         <img src="{{ asset('images/manual/dashboard.png') }}" alt="Dashboard" class="img-fluid rounded shadow">
-                        <p class="text-muted small mt-2">Gambar 2: Tampilan Dashboard</p>
+                        <p class="text-muted small mt-2">Gambar 2: Tampilan Dashboard WMS</p>
                     </div>
 
-                    <div class="row">
+                    <h6 class="fw-semibold">1. Filter Gudang (Multi-Warehouse)</h6>
+                    <p>Di pojok kanan atas, terdapat menu pilihan gudang:</p>
+                    <ul>
+                        <li><strong>Admin & Owner:</strong> Dapat memilih untuk melihat data dari semua gudang (Gabungan) atau memilih gudang spesifik cabang tertentu.</li>
+                        <li><strong>Staff:</strong> Hanya akan melihat data dan stok dari gudang tempat mereka ditugaskan.</li>
+                    </ul>
+
+                    <h6 class="fw-semibold mt-4">2. Kartu Statistik Utama</h6>
+                    <div class="row g-3 mb-3">
                         <div class="col-md-6">
-                            <h6 class="fw-semibold">Kartu Statistik</h6>
-                            <ul>
-                                <li><strong>Total Barang</strong> - Jumlah item terdaftar</li>
-                                <li><strong>Stok Masuk Hari Ini</strong> - Transaksi masuk hari ini</li>
-                                <li><strong>Stok Keluar Hari Ini</strong> - Transaksi keluar hari ini</li>
-                                <li><strong>Stok Menipis</strong> - Barang di bawah minimum</li>
+                            <ul class="list-group">
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span><i class="bi bi-box-seam text-primary me-2"></i>Total Barang</span>
+                                    <span class="badge bg-primary rounded-pill">Jumlah Item Terdaftar</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span><i class="bi bi-box-arrow-in-down text-success me-2"></i>Stok Masuk Hari Ini</span>
+                                    <span class="badge bg-success rounded-pill">Total Qty Masuk</span>
+                                </li>
                             </ul>
                         </div>
                         <div class="col-md-6">
-                            <h6 class="fw-semibold">Grafik & Tabel</h6>
-                            <ul>
-                                <li><strong>Grafik Transaksi</strong> - Tren 7 hari terakhir</li>
-                                <li><strong>Barang Stok Menipis</strong> - Daftar perlu di-restock</li>
-                                <li><strong>Transaksi Terakhir</strong> - 5 transaksi terbaru</li>
+                            <ul class="list-group">
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span><i class="bi bi-box-arrow-up text-danger me-2"></i>Stok Keluar Hari Ini</span>
+                                    <span class="badge bg-danger rounded-pill">Total Qty Keluar</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span><i class="bi bi-exclamation-triangle text-warning me-2"></i>Stok Menipis</span>
+                                    <span class="badge bg-warning text-dark rounded-pill">Perlu Restock</span>
+                                </li>
                             </ul>
                         </div>
+                    </div>
+
+                    <h6 class="fw-semibold mt-4">3. Grafik & Ringkasan Bulanan</h6>
+                    <ul>
+                        <li><strong>Grafik Transaksi:</strong> Visualisasi pergerakan stok masuk (hijau) dan keluar (merah) selama 7 hari terakhir.</li>
+                        <li><strong>Ringkasan Bulan Ini:</strong> Akumulasi total stok yang masuk dan keluar sepanjang bulan berjalan, memudahkan evaluasi performa bulanan.</li>
+                    </ul>
+
+                    <h6 class="fw-semibold mt-4">4. Tabel Informasi Penting</h6>
+                    <ul>
+                        <li><strong>Barang Stok Menipis:</strong> Daftar 5 barang prioritas yang stoknya sudah mencapai batas minimum. Klik tombol "Lihat Semua" untuk melihat daftar lengkap dan melakukan pembelian ulang.</li>
+                        <li><strong>Transaksi Terakhir:</strong> Log aktivitas terbaru yang terjadi di sistem, memudahkan pemantauan aktivitas staff secara realtime.</li>
+                    </ul>
+
+                    <h6 class="fw-semibold mt-4">5. Aksi Cepat (Quick Actions)</h6>
+                    <p>Tombol shortcut untuk akses cepat ke fitur yang sering digunakan:</p>
+                    <div class="d-flex flex-wrap gap-2">
+                        <span class="badge bg-success p-2"><i class="bi bi-box-arrow-in-down me-1"></i>Stok Masuk</span>
+                        <span class="badge bg-danger p-2"><i class="bi bi-box-arrow-up me-1"></i>Stok Keluar</span>
+                        <span class="badge bg-primary p-2"><i class="bi bi-upc-scan me-1"></i>Scan Barcode</span>
+                        <span class="badge bg-info p-2"><i class="bi bi-plus-circle me-1"></i>Tambah Barang</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profil Perusahaan -->
+            <div class="card mb-4" id="profil">
+                <div class="card-header">
+                    <h5 class="mb-0">🏢 Profil Perusahaan</h5>
+                </div>
+                <div class="card-body">
+                    <p>Halaman ini menampilkan informasi perusahaan yang akan muncul di kop laporan dan header tanda terima.</p>
+                    
+                    <div class="text-center mb-3">
+                        <img src="{{ asset('images/manual/manual_company_profile.png') }}" alt="Profil Perusahaan" class="img-fluid rounded shadow">
+                        <p class="text-muted small mt-2">Gambar: Halaman Profil Perusahaan</p>
+                    </div>
+
+                    <h6 class="fw-semibold">Informasi yang Ditampilkan:</h6>
+                    <ul>
+                        <li><strong>Nama Perusahaan</strong></li>
+                        <li><strong>Alamat Lengkap</strong></li>
+                        <li><strong>Kontak (Email & Telepon)</strong></li>
+                    </ul>
+
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>Info:</strong> Saat ini data perusahan diatur melalui Database Seeder. Hubungi Administrator jika ada perubahan data perusahaan.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Manajemen Gudang -->
+            <div class="card mb-4" id="gudang">
+                <div class="card-header">
+                    <h5 class="mb-0">🏭 Manajemen Gudang (Multi-Warehouse)</h5>
+                </div>
+                <div class="card-body">
+                    <p>Sistem ini mendukung pengelolaan banyak gudang (Multi-Warehouse). Anda dapat mengatur gudang cabang dan memantau stok di setiap lokasi.</p>
+                    
+                    <div class="text-center mb-3">
+                        <img src="{{ asset('images/manual/manual_warehouse_list.png') }}" alt="Daftar Gudang" class="img-fluid rounded shadow">
+                        <p class="text-muted small mt-2">Gambar: Daftar Gudang</p>
+                    </div>
+
+                    <h6 class="fw-semibold">Fitur Gudang:</h6>
+                    <ul>
+                        <li><strong>Tambah Gudang</strong>: Daftarkan lokasi gudang baru beserta alamatnya.</li>
+                        <li><strong>Akses User</strong>: Setiap Staff dapat ditugaskan ke satu gudang spesifik.</li>
+                        <li><strong>Isolasi Stok</strong>: Transaksi dan stok admin/staff terpisah sesuai gudang masing-masing.</li>
+                    </ul>
+
+                    <div class="alert alert-info">
+                        <i class="bi bi-person-badge me-2"></i>
+                        <strong>Penugasan Staff:</strong> Saat membuat user baru, Admin wajib memilih gudang penempatan. Staff hanya bisa melihat dan mengelola stok di gudang tersebut.
                     </div>
                 </div>
             </div>
@@ -207,6 +301,35 @@
                     <div class="text-center mb-3">
                         <img src="{{ asset('images/manual/transaction-history.png') }}" alt="Riwayat Transaksi" class="img-fluid rounded shadow">
                         <p class="text-muted small mt-2">Gambar 8: Daftar Dokumen Transaksi</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Transfer Stok -->
+            <div class="card mb-4" id="transfer">
+                <div class="card-header">
+                    <h5 class="mb-0">🚚 Transfer Stok Antar Gudang</h5>
+                </div>
+                <div class="card-body">
+                    <p>Pindahkan stok barang dari satu gudang ke gudang lain dengan aman dan tercatat.</p>
+
+                    <div class="text-center mb-3">
+                        <img src="{{ asset('images/manual/manual_stock_transfer.png') }}" alt="Transfer Stok" class="img-fluid rounded shadow">
+                        <p class="text-muted small mt-2">Gambar: Form Transfer Stok</p>
+                    </div>
+
+                    <h6 class="fw-semibold">Cara Melakukan Transfer:</h6>
+                    <ol>
+                        <li>Pilih menu <strong>Transfer Stok</strong>.</li>
+                        <li>Klik <strong>Buat Transfer Baru</strong>.</li>
+                        <li>Pilih <strong>Gudang Asal</strong> (Otomatis untuk Staff) dan <strong>Gudang Tujuan</strong>.</li>
+                        <li>Masukkan daftar barang dan jumlah yang ingin dipindahkan.</li>
+                        <li>Klik <strong>Proses Transfer</strong>.</li>
+                    </ol>
+
+                    <div class="alert alert-success">
+                        <i class="bi bi-shield-check me-2"></i>
+                        <strong>Otomatisasi:</strong> Sistem akan otomatis membuat dokumen <strong>Stok Keluar</strong> di gudang asal dan <strong>Stok Masuk</strong> di gudang tujuan. Kedua dokumen saling terhubung dengan Nomor Referensi Transfer (TRF-XXX).
                     </div>
                 </div>
             </div>
@@ -353,6 +476,34 @@
                         <li><i class="bi bi-file-pdf text-danger me-1"></i> <strong>PDF</strong> - Untuk print atau arsip</li>
                         <li><i class="bi bi-file-excel text-success me-1"></i> <strong>Excel</strong> - Untuk analisis lanjutan</li>
                     </ul>
+                </div>
+            </div>
+
+            <!-- Audit Logs -->
+            <div class="card mb-4" id="audit">
+                <div class="card-header">
+                    <h5 class="mb-0">🛡️ Audit Logs (Keamanan)</h5>
+                </div>
+                <div class="card-body">
+                    <p>Untuk menjaga keamanan dan akuntabilitas, sistem mencatat setiap aktivitas penting yang dilakukan oleh pengguna.</p>
+
+                    <div class="text-center mb-3">
+                        <img src="{{ asset('images/manual/manual_audit_log.png') }}" alt="Audit Log" class="img-fluid rounded shadow">
+                        <p class="text-muted small mt-2">Gambar: Halaman Audit Logs</p>
+                    </div>
+
+                    <h6 class="fw-semibold">Aktivitas yang Dicatat:</h6>
+                    <ul>
+                        <li><span class="badge bg-primary">Create Transaction</span> - Pembuatan transaksi masuk/keluar.</li>
+                        <li><span class="badge bg-info text-dark">Transfer Stock</span> - Perpindahan stok antar gudang.</li>
+                        <li><span class="badge bg-warning text-dark">Sign Receipt</span> - Penandatanganan dokumen.</li>
+                        <li><span class="badge bg-secondary">Lock Receipt</span> - Penguncian dokumen.</li>
+                        <li><span class="badge bg-danger">Delete Transaction</span> - Penghapusan data transaksi.</li>
+                    </ul>
+
+                    <p class="text-muted small mt-2">
+                        *Halaman ini hanya dapat diakses oleh Level <strong>Admin</strong> dan <strong>Owner</strong>.
+                    </p>
                 </div>
             </div>
 

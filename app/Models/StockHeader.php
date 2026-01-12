@@ -13,6 +13,7 @@ class StockHeader extends Model
     const TYPE_OUT = 'out';
 
     protected $fillable = [
+        'warehouse_id',
         'document_number',
         'type',
         'transaction_date',
@@ -23,12 +24,23 @@ class StockHeader extends Model
         'receiver_signature',
         'receipt_locked',
         'user_id',
+        'stock_transfer_id',
     ];
 
     protected $casts = [
         'transaction_date' => 'datetime',
         'receipt_locked' => 'boolean',
     ];
+
+    public function warehouse()
+    {
+        return $this->belongsTo(Warehouse::class);
+    }
+
+    public function stockTransfer()
+    {
+        return $this->belongsTo(StockTransfer::class);
+    }
 
     /**
      * Boot method to generate document number

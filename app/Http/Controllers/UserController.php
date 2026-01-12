@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+
 use App\Models\User;
+use App\Models\Warehouse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rules\Password;
 
@@ -10,7 +12,7 @@ class UserController extends Controller
 {
     public function index(Request $request)
     {
-        $query = User::query();
+        $query = User::with('warehouse');
 
         if ($request->filled('search')) {
             $query->where(function ($q) use ($request) {
@@ -31,7 +33,8 @@ class UserController extends Controller
     public function create()
     {
         $roles = User::getRoles();
-        return view('users.create', compact('roles'));
+        $warehouses = Warehouse::orderBy('name')->get();
+        return view('users.create', compact('roles', 'warehouses'));
     }
 
     public function store(Request $request)
@@ -41,7 +44,13 @@ class UserController extends Controller
             'email' => 'required|email|max:255|unique:users,email',
             'password' => ['required', 'confirmed', Password::defaults()],
             'role' => 'required|in:admin,staff,owner',
+            'warehouse_id' => 'required_if:role,staff|nullable|exists:warehouses,id',
         ]);
+
+        // Force warehouse_id to null if not staff
+        if ($validated['role'] !== User::ROLE_STAFF) {
+            $validated['warehouse_id'] = null;
+        }
 
         $validated['password'] = bcrypt($validated['password']);
 
@@ -54,17 +63,26 @@ class UserController extends Controller
     public function edit(User $user)
     {
         $roles = User::getRoles();
-        return view('users.edit', compact('user', 'roles'));
+        $warehouses = Warehouse::orderBy('name')->get();
+        return view('users.edit', compact('user', 'roles', 'warehouses'));
     }
 
     public function update(Request $request, User $user)
     {
-        $validated = $request->validate([
+        $rules = [
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users,email,' . $user->id,
             'password' => ['nullable', 'confirmed', Password::defaults()],
             'role' => 'required|in:admin,staff,owner',
-        ]);
+            'warehouse_id' => 'required_if:role,staff|nullable|exists:warehouses,id',
+        ];
+
+        $validated = $request->validate($rules);
+
+        // Force warehouse_id to null if not staff
+        if ($validated['role'] !== User::ROLE_STAFF) {
+            $validated['warehouse_id'] = null;
+        }
 
         if (empty($validated['password'])) {
             unset($validated['password']);

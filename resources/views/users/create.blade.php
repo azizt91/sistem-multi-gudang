@@ -29,6 +29,7 @@
                         @enderror
                     </div>
 
+
                     <div class="mb-3">
                         <label for="role" class="form-label">Role <span class="text-danger">*</span></label>
                         <select class="form-select @error('role') is-invalid @enderror" id="role" name="role" required>
@@ -44,11 +45,54 @@
                         <div class="mt-2">
                             <small class="text-muted">
                                 <strong>Admin:</strong> Akses penuh<br>
-                                <strong>Staff Gudang:</strong> Input transaksi stok<br>
+                                <strong>Staff Gudang:</strong> Input transaksi stok (Wajib pilih gudang)<br>
                                 <strong>Owner:</strong> Lihat laporan saja
                             </small>
                         </div>
                     </div>
+
+                    <!-- Warehouse Selection (Visible only for Staff) -->
+                    <div class="mb-3" id="warehouse-container" style="display: none;">
+                        <label for="warehouse_id" class="form-label">Gudang <span class="text-danger">*</span></label>
+                        <select class="form-select @error('warehouse_id') is-invalid @enderror" id="warehouse_id" name="warehouse_id">
+                            <option value="">Pilih Gudang</option>
+                            @foreach($warehouses as $warehouse)
+                            <option value="{{ $warehouse->id }}" {{ old('warehouse_id') == $warehouse->id ? 'selected' : '' }}>
+                                {{ $warehouse->name }}
+                            </option>
+                            @endforeach
+                        </select>
+                        @error('warehouse_id')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                        <small class="text-muted">Staff hanya dapat mengakses gudang yang dipilih.</small>
+                    </div>
+
+                    @push('scripts')
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            const roleSelect = document.getElementById('role');
+                            const warehouseContainer = document.getElementById('warehouse-container');
+                            const warehouseInput = document.getElementById('warehouse_id');
+
+                            function toggleWarehouse() {
+                                if (roleSelect.value === 'staff') {
+                                    warehouseContainer.style.display = 'block';
+                                    warehouseInput.required = true;
+                                } else {
+                                    warehouseContainer.style.display = 'none';
+                                    warehouseInput.required = false;
+                                    warehouseInput.value = '';
+                                }
+                            }
+
+                            roleSelect.addEventListener('change', toggleWarehouse);
+                            
+                            // Run on load to handle old input or pre-selection
+                            toggleWarehouse();
+                        });
+                    </script>
+                    @endpush
 
                     <div class="mb-3">
                         <label for="password" class="form-label">Password <span class="text-danger">*</span></label>

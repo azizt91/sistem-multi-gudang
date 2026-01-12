@@ -16,14 +16,12 @@ class Item extends Model
         'name',
         'category_id',
         'unit_id',
-        'stock',
-        'minimum_stock',
+        'image',
         'rack_location',
     ];
 
     protected $casts = [
-        'stock' => 'integer',
-        'minimum_stock' => 'integer',
+        // 'stock' removed from casts since it's no longer a column
     ];
 
     /**
@@ -42,6 +40,16 @@ class Item extends Model
         return $this->belongsTo(Unit::class);
     }
 
+    public function warehouseItems()
+    {
+        return $this->hasMany(WarehouseItem::class);
+    }
+
+    public function getStockInWarehouse($warehouseId)
+    {
+        return $this->warehouseItems()->where('warehouse_id', $warehouseId)->first()?->stock ?? 0;
+    }
+
     /**
      * Get stock transactions for this item
      */
@@ -51,11 +59,36 @@ class Item extends Model
     }
 
     /**
-     * Check if stock is low (below minimum)
+     * Get total stock across all warehouses
+     */
+    public function getStockAttribute()
+    {
+        return $this->warehouseItems->sum('stock');
+    }
+
+    /**
+     * Get minimum stock (using max of warehouse minimums or sum? Usually per warehouse but for global view maybe sum or max?)
+     * For now let's sum it or return 0 if no warehouse items.
+     */
+    public function getMinimumStockAttribute()
+    {
+        return $this->warehouseItems->sum('minimum_stock');
+    }
+
+    /**
+     * Check if stock is low (below minimum) in ANY warehouse
      */
     public function isLowStock(): bool
     {
-        return $this->stock <= $this->minimum_stock;
+        // Return true if ANY warehouse has low stock? Or if Total < Total Min?
+        // Usually low stock is per warehouse.
+        // Let's say if it's low in ANY warehouse.
+        foreach ($this->warehouseItems as $wi) {
+            if ($wi->stock <= $wi->minimum_stock) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -79,11 +112,13 @@ class Item extends Model
     }
 
     /**
-     * Scope for low stock items
+     * Scope for low stock items (in any warehouse)
      */
     public function scopeLowStock($query)
     {
-        return $query->whereColumn('stock', '<=', 'minimum_stock');
+        return $query->whereHas('warehouseItems', function ($q) {
+            $q->whereColumn('stock', '<=', 'minimum_stock');
+        });
     }
 
     /**

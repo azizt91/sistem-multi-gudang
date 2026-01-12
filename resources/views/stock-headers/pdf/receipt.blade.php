@@ -158,7 +158,15 @@
     <div class="container">
         <!-- Header -->
         <div class="header">
-            <h1>TANDA TERIMA</h1>
+            @php
+                $profile = \App\Models\CompanyProfile::first();
+            @endphp
+            @if($profile && $profile->logo_path)
+                <img src="{{ public_path('storage/' . $profile->logo_path) }}" style="height: 40px; margin-bottom: 5px;">
+            @endif
+            <h1 style="margin-top: 5px;">{{ $profile->company_name ?? 'WMS' }}</h1>
+            <div style="margin-bottom: 10px; font-size: 10px;">{{ $profile->address ?? '' }}</div>
+            <h2 style="font-size: 16px; border-top: 1px solid #333; padding-top: 10px;">TANDA TERIMA</h2>
             <div class="subtitle">{{ $stockHeader->type_label }}</div>
         </div>
 
@@ -171,8 +179,8 @@
                 <td>: {{ $stockHeader->user->name }}</td>
             </tr>
             <tr>
-                <td class="label">Tanggal</td>
-                <td>: {{ $stockHeader->transaction_date->format('d F Y, H:i') }}</td>
+                <td class="label">Gudang</td>
+                <td>: {{ $stockHeader->warehouse->name ?? '-' }}</td>
                 <td class="label">Jenis</td>
                 <td>: 
                     <span class="badge {{ $stockHeader->type === 'in' ? 'badge-success' : 'badge-danger' }}">
@@ -180,6 +188,13 @@
                     </span>
                 </td>
             </tr>
+            <tr>
+                <td class="label">Tanggal</td>
+                <td>: {{ $stockHeader->transaction_date->format('d F Y, H:i') }}</td>
+                <td class="label"></td>
+                <td></td>
+            </tr>
+
             @if($stockHeader->notes)
             <tr>
                 <td class="label">Catatan</td>

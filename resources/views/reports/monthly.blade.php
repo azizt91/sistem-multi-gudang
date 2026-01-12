@@ -9,8 +9,11 @@
         <p class="text-muted mb-0">Periode: {{ $startDate->format('F Y') }}</p>
     </div>
     <div>
-        <a href="{{ route('reports.monthly.pdf', ['month' => $month, 'year' => $year]) }}" class="btn btn-danger">
+        <a href="{{ route('reports.monthly.pdf', ['month' => $month, 'year' => $year, 'warehouse_id' => request('warehouse_id')]) }}" class="btn btn-danger">
             <i class="bi bi-file-earmark-pdf me-1"></i> Export PDF
+        </a>
+        <a href="{{ route('reports.monthly.excel', ['month' => $month, 'year' => $year, 'warehouse_id' => request('warehouse_id')]) }}" class="btn btn-success ms-2">
+            <i class="bi bi-file-earmark-excel me-1"></i> Export Excel
         </a>
     </div>
 </div>
@@ -19,6 +22,17 @@
 <div class="card mb-4">
     <div class="card-body">
         <form action="{{ route('reports.monthly') }}" method="GET" class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label">Gudang</label>
+                <select name="warehouse_id" class="form-select">
+                    <option value="">Semua Gudang</option>
+                    @foreach($warehouses as $w)
+                        <option value="{{ $w->id }}" {{ request('warehouse_id') == $w->id ? 'selected' : '' }}>
+                            {{ $w->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
             <div class="col-md-3">
                 <label class="form-label">Bulan</label>
                 <select name="month" class="form-select">

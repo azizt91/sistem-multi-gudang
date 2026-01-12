@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 
+use Illuminate\Pagination\Paginator;
+
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -19,6 +21,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        Paginator::useBootstrapFive();
+
+        // Share company profile with all views
+        if (!app()->runningInConsole()) {
+            $companyProfile = \App\Models\CompanyProfile::first();
+            view()->share('companyProfile', $companyProfile);
+        }
     }
 }

@@ -15,6 +15,45 @@
     </div>
 </div>
 
+<!-- Filters -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form action="{{ route('reports.stock') }}" method="GET" class="row g-3">
+            <div class="col-md-3">
+                <label class="form-label">Gudang</label>
+                <select name="warehouse_id" class="form-select" onchange="this.form.submit()">
+                    <option value="">Semua Gudang</option>
+                    @foreach($warehouses as $w)
+                        <option value="{{ $w->id }}" {{ request('warehouse_id') == $w->id ? 'selected' : '' }}>
+                            {{ $w->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Kategori</label>
+                <select name="category_id" class="form-select" onchange="this.form.submit()">
+                    <option value="">Semua Kategori</option>
+                    @foreach(\App\Models\Category::orderBy('name')->get() as $c)
+                        <option value="{{ $c->id }}" {{ request('category_id') == $c->id ? 'selected' : '' }}>
+                            {{ $c->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="col-md-3">
+                 <div class="form-check form-switch mt-4">
+                    <input class="form-check-input" type="checkbox" name="low_stock" value="1" id="lowStock" {{ request('low_stock') ? 'checked' : '' }} onchange="this.form.submit()">
+                    <label class="form-check-label" for="lowStock">Hanya Stok Menipis</label>
+                </div>
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+                 <a href="{{ route('reports.stock') }}" class="btn btn-secondary w-100">Reset Filter</a>
+            </div>
+        </form>
+    </div>
+</div>
+
 <!-- Summary Cards -->
 <div class="row g-3 mb-4">
     <div class="col-md-4">

@@ -81,9 +81,20 @@
     </style>
 </head>
 <body>
+<body>
     <div class="header">
-        <h1>LAPORAN TRANSAKSI HARIAN</h1>
+        @php
+            $profile = \App\Models\CompanyProfile::first();
+        @endphp
+        @if($profile && $profile->logo_path)
+            <img src="{{ public_path('storage/' . $profile->logo_path) }}" style="height: 40px; margin-bottom: 5px;">
+        @endif
+        <h1 style="font-size: 16px; margin-top: 5px;">{{ $profile->company_name ?? 'WMS' }}</h1>
+        <div style="margin-bottom: 10px; font-size: 10px; color: #666;">{{ $profile->address ?? '' }}</div>
+        
+        <h2 style="font-size: 14px; margin-top: 15px; border-top: 1px solid #333; padding-top: 10px;">LAPORAN TRANSAKSI HARIAN</h2>
         <p>Tanggal: {{ $date->format('d F Y') }}</p>
+        <p>Gudang: {{ $warehouse ? $warehouse->name : 'Semua Gudang' }}</p>
     </div>
 
     <div class="summary">
@@ -104,14 +115,18 @@
     <table>
         <thead>
             <tr>
-                <th class="text-center">No</th>
-                <th>Waktu</th>
-                <th>Kode</th>
+                <th class="text-center" width="3%">No</th>
+                <th width="7%">Waktu</th>
+                <th width="10%">Gudang</th>
+                <th width="8%">Kode</th>
                 <th>Nama Barang</th>
-                <th class="text-center">Jenis</th>
-                <th class="text-right">Qty</th>
-                <th>User</th>
-                <th>Catatan</th>
+                <th class="text-center" width="8%">Jenis</th>
+                <th class="text-right" width="6%">Awal</th>
+                <th class="text-right" width="6%">Masuk</th>
+                <th class="text-right" width="6%">Keluar</th>
+                <th class="text-right" width="6%">Akhir</th>
+                <th width="8%">User</th>
+                <th width="10%">Catatan</th>
             </tr>
         </thead>
         <tbody>
@@ -119,22 +134,28 @@
             <tr>
                 <td class="text-center">{{ $index + 1 }}</td>
                 <td>{{ $transaction->transaction_date->format('H:i') }}</td>
+                <td>{{ $transaction->stockHeader->warehouse->name ?? '-' }}</td>
                 <td>{{ $transaction->item->code }}</td>
-                <td>{{ $transaction->item->name }}</td>
+                <td>{{ \Illuminate\Support\Str::limit($transaction->item->name, 20) }}</td>
                 <td class="text-center">
                     <span class="badge {{ $transaction->type === 'in' ? 'badge-success' : 'badge-danger' }}">
-                        {{ $transaction->type === 'in' ? 'MASUK' : 'KELUAR' }}
+                        {{ $transaction->type === 'in' ? 'Stok Masuk' : 'Stok Keluar' }}
                     </span>
                 </td>
-                <td class="text-right {{ $transaction->type === 'in' ? 'text-success' : 'text-danger' }}">
-                    {{ $transaction->type === 'in' ? '+' : '-' }}{{ $transaction->quantity }}
+                <td class="text-right">{{ number_format($transaction->stock_before) }}</td>
+                <td class="text-right text-success">
+                    {{ $transaction->type === 'in' ? number_format($transaction->quantity) : '0' }}
                 </td>
-                <td>{{ $transaction->user->name }}</td>
-                <td>{{ $transaction->notes ?? '-' }}</td>
+                <td class="text-right text-danger">
+                    {{ $transaction->type === 'out' ? number_format($transaction->quantity) : '0' }}
+                </td>
+                <td class="text-right">{{ number_format($transaction->stock_after) }}</td>
+                <td>{{ \Illuminate\Support\Str::limit($transaction->user->name, 10) }}</td>
+                <td>{{ \Illuminate\Support\Str::limit($transaction->notes ?? '-', 15) }}</td>
             </tr>
             @empty
             <tr>
-                <td colspan="8" class="text-center">Tidak ada transaksi pada tanggal ini</td>
+                <td colspan="12" class="text-center">Tidak ada transaksi pada tanggal ini</td>
             </tr>
             @endforelse
         </tbody>

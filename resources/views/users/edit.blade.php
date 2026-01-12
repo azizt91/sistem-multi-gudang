@@ -42,6 +42,55 @@
                         @enderror
                     </div>
 
+                    <!-- Warehouse Selection (Visible only for Staff) -->
+                    <div class="mb-3" id="warehouse-container" style="display: none;">
+                        <label for="warehouse_id" class="form-label">Gudang <span class="text-danger">*</span></label>
+                        <select class="form-select @error('warehouse_id') is-invalid @enderror" id="warehouse_id" name="warehouse_id">
+                            <option value="">Pilih Gudang</option>
+                            @foreach($warehouses as $warehouse)
+                            <option value="{{ $warehouse->id }}" {{ old('warehouse_id', $user->warehouse_id) == $warehouse->id ? 'selected' : '' }}>
+                                {{ $warehouse->name }}
+                            </option>
+                            @endforeach
+                        </select>
+                        @error('warehouse_id')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                        <small class="text-muted">Staff hanya dapat mengakses gudang yang dipilih.</small>
+                    </div>
+
+                    @push('scripts')
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            const roleSelect = document.getElementById('role');
+                            const warehouseContainer = document.getElementById('warehouse-container');
+                            const warehouseInput = document.getElementById('warehouse_id');
+
+                            function toggleWarehouse() {
+                                if (roleSelect.value === 'staff') {
+                                    warehouseContainer.style.display = 'block';
+                                    warehouseInput.required = true;
+                                } else {
+                                    warehouseContainer.style.display = 'none';
+                                    warehouseInput.required = false;
+                                    // Don't clear value on edit immediately to allow switching back and forth if needed, 
+                                    // but usually we want to clear if role changes to non-staff. 
+                                    // However, for consistency with Create, let's clear it visually or just let the backend handle the nulling.
+                                    // Actually, let's clear it to avoid confusion.
+                                    if (roleSelect.value !== 'staff') {
+                                         warehouseInput.value = '';
+                                    }
+                                }
+                            }
+
+                            roleSelect.addEventListener('change', toggleWarehouse);
+                            
+                            // Run on load
+                            toggleWarehouse();
+                        });
+                    </script>
+                    @endpush
+
                     <div class="mb-3">
                         <label for="password" class="form-label">Password Baru</label>
                         <input type="password" class="form-control @error('password') is-invalid @enderror" id="password" name="password">

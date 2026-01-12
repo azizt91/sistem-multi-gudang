@@ -71,9 +71,49 @@
                 </div>
             </div>
         </div>
-    </div>
+
+
+        <!-- Stock Per Warehouse -->
+
+        </div>
+
 
     <div class="col-lg-8">
+        <!-- Stock Per Warehouse -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="bi bi-building me-2"></i>Stok per Gudang
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Gudang</th>
+                                <th class="text-end">Stok</th>
+                                <th class="text-end">Min</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($item->warehouseItems as $wi)
+                            <tr>
+                                <td>{{ $wi->warehouse->name }}</td>
+                                <td class="text-end fw-bold {{ $wi->stock <= $wi->minimum_stock ? 'text-danger' : 'text-success' }}">
+                                    {{ $wi->stock }}
+                                </td>
+                                <td class="text-end text-muted">{{ $wi->minimum_stock }}</td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="3" class="text-center text-muted small py-2">Belum ada stok di gudang manapun</td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
         <!-- Transaction History -->
         <div class="card">
             <div class="card-header">

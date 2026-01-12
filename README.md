@@ -1,40 +1,41 @@
 # Warehouse Management System (WMS)
 
-Sistem Manajemen Gudang berbasis web yang dibangun dengan Laravel 11, Bootstrap 5, dan MySQL.
+Sistem Manajemen Gudang berbasis web yang dibangun dengan Laravel 12, Bootstrap 5, dan MySQL. Aplikasi ini dirancang untuk menangani operasional gudang multi-lokasi dengan fitur pelacakan stok realtime, transfer antar gudang, dan log audit yang lengkap.
 
 ## 📋 Fitur Utama
 
-### Manajemen Inventori
+### 🏢 Multi-Warehouse (Banyak Gudang)
+- ✅ Kelola banyak gudang (Pusat, Cabang, dll)
+- ✅ Stok terpisah per lokasi gudang
+- ✅ Filter stok berdasarkan gudang tertentu
+- ✅ Total stok gabungan (Global Stock)
+
+### 📦 Manajemen Inventori
 - ✅ CRUD Barang dengan barcode otomatis
+- ✅ Live Search (Pencarian Cepat dengan AJAX)
 - ✅ Kategori & Satuan barang
 - ✅ Lokasi rak penyimpanan
 - ✅ Notifikasi stok menipis
 
-### Transaksi Stok
-- ✅ Sistem Dokumen (Bukti Transaksi)
-- ✅ Stok Masuk & Keluar Multi-Item
-- ✅ Tanda Tangan Digital pada Bukti
-- ✅ Validasi stok realtime
+### 🚛 Transaksi Stok
+- ✅ **Stok Masuk & Keluar**: Pencatatan barang masuk/keluar dengan validasi stok.
+- ✅ **Transfer Stok**: Pemindahan barang antar gudang dengan mutasi otomatis.
+- ✅ **Approval System**: Tanda tangan digital petugas & penerima.
+- ✅ **Bukti Transaksi**: Cetak Bukti Serah Terima & Surat Jalan (PDF).
 
-### Barcode & Scanner
+### 🛡️ Keamanan & Audit
+- ✅ **Role-based Access**: Admin, Staff Gudang, Owner.
+- ✅ **Audit Logs**: Mencatat setiap aktivitas user (siapa, kapan, melakukan apa).
+- ✅ **Login Security**: Proteksi rute berdasarkan role.
+
+### 📱 Barcode & Scanner
 - ✅ Generate barcode otomatis (Code128)
-- ✅ Scanner Multi-Item dengan sistem Cart
+- ✅ Scanner Multi-Item dengan kamera HP / Scanner Gun
 - ✅ Mode Switch (Masuk/Keluar) interaktif
-- ✅ Cetak barcode massal
 
-### Laporan
-- ✅ Laporan harian & bulanan
-- ✅ Laporan stok keseluruhan
-- ✅ Export ke PDF & Excel
-
-### Keamanan
-- ✅ Role-based access (Admin, Staff, Owner)
-- ✅ Login authentication
-
-### UI/UX
-- ✅ Dark Mode
-- ✅ Responsive design (mobile-friendly)
-- ✅ Modern dashboard
+### ⚙️ Pengaturan & Profil
+- ✅ **Profil Perusahaan**: Ganti nama, logo, dan alamat perusahaan.
+- ✅ **Branding**: Logo tampil di Login Page & Dokumen PDF.
 
 ---
 
@@ -44,7 +45,7 @@ Sistem Manajemen Gudang berbasis web yang dibangun dengan Laravel 11, Bootstrap 
 - Composer
 - MySQL >= 5.7
 - Node.js >= 18
-- XAMPP/WAMP/Laragon (untuk local development)
+- XAMPP/WAMP/Laragon (Local Development)
 
 ---
 
@@ -81,7 +82,7 @@ DB_PASSWORD=
 
 ### 5. Jalankan Migrasi & Seeder
 ```bash
-php artisan migrate --seed
+php artisan migrate:fresh --seed
 ```
 
 ### 6. Build Assets
@@ -100,11 +101,11 @@ Akses aplikasi di: `http://127.0.0.1:8000`
 
 ## 👤 Akun Demo
 
-| Role  | Email                   | Password |
-|-------|-------------------------|----------|
-| Admin | admin@warehouse.test    | password |
-| Staff | staff@warehouse.test    | password |
-| Owner | owner@warehouse.test    | password |
+| Role  | Email                   | Password | Akses Utama |
+|-------|-------------------------|----------|-------------|
+| **Admin** | admin@warehouse.test    | password | Full Akses Konfigurasi, User, Hapus Data |
+| **Staff** | staff@warehouse.test    | password | Operasional Masuk/Keluar/Transfer Stok |
+| **Owner** | owner@warehouse.test    | password | Monitoring Dashboard & Laporan (Read Only) |
 
 ---
 
@@ -113,89 +114,63 @@ Akses aplikasi di: `http://127.0.0.1:8000`
 ```
 warehouse-management-system/
 ├── app/
-│   ├── Http/Controllers/    # Controllers
-│   ├── Models/              # Eloquent Models
-│   ├── Services/            # Business Logic
-│   └── Middleware/          # Custom Middleware
+│   ├── Http/Controllers/    
+│   │   ├── StockHeaderController.php   # Logika Transaksi Stok
+│   │   ├── StockTransferController.php # Logika Transfer Gudang
+│   │   ├── AuditLogController.php      # Riwayat Aktivitas
+│   │   ├── ItemController.php          # Manajemen Barang (Live Search)
+│   │   └── ...
+│   ├── Models/              # Eloquent Models (Warehouse, Item, StockHeader...)
+│   └── Services/            # Business Logic (StockService, AuditService)
 ├── database/
-│   ├── migrations/          # Database Migrations
-│   └── seeders/             # Data Seeders
+│   ├── migrations/          # Struktur Database
+│   └── seeders/             # Data Dummy (Include Multi-Warehouse distribution)
 ├── resources/views/
-│   ├── layouts/             # Layout Templates
-│   ├── auth/                # Authentication Views
-│   ├── dashboard/           # Dashboard Views
-│   ├── items/               # Item Management Views
-│   ├── categories/          # Category Views
-│   ├── units/               # Unit Views
-│   ├── transactions/        # Transaction Views
-│   ├── reports/             # Report Views
-│   ├── users/               # User Management Views
-│   └── barcode/             # Barcode Scanner Views
-├── routes/
-│   └── web.php              # Route Definitions
-└── public/
-    └── js/                  # JavaScript Files
+│   ├── auth/                # Login Page (Custom Branding)
+│   ├── dashboard/           # Dashboard Utama
+│   ├── items/               # Tampilan Daftar Barang
+│   ├── stock-headers/       # Riwayat Transaksi
+│   ├── stock-transfers/     # Tampilan Transfer Stok
+│   ├── audit-logs/          # Tampilan Audit Trail
+│   ├── manual/              # Buku Panduan User
+│   └── warehouse/           # Manajemen Data Gudang
+└── routes/
+    └── web.php              # Definisi Route & Hak Akses
 ```
 
 ---
 
-## 🔐 Hak Akses Role
+## 🔐 Hak Akses Role (Permission Matrix)
 
-| Fitur              | Admin | Staff | Owner |
-|--------------------|-------|-------|-------|
-| Dashboard          | ✅    | ✅    | ✅    |
-| Lihat Barang       | ✅    | ✅    | ✅    |
-| Tambah/Edit Barang | ✅    | ❌    | ❌    |
-| Hapus Barang       | ✅    | ❌    | ❌    |
-| Kategori & Satuan  | ✅    | ❌    | ❌    |
-| Stok Masuk/Keluar  | ✅    | ✅    | ❌    |
-| Lihat Transaksi    | ✅    | ✅    | ✅    |
-| Laporan            | ✅    | ❌    | ✅    |
-| Kelola User        | ✅    | ❌    | ❌    |
-| Scan Barcode       | ✅    | ✅    | ✅    |
+| Fitur / Modul        | Admin | Staff | Owner |
+|----------------------|:-----:|:-----:|:-----:|
+| **Dashboard**        | ✅    | ✅    | ✅    |
+| **Manajemen User**   | ✅    | ❌    | ❌    |
+| **Manajemen Gudang** | ✅    | ❌    | ❌    |
+| **Barang (Data Master)** | ✅ | Lihat | Lihat |
+| **Stok Masuk/Keluar**| ✅    | ✅    | ❌    |
+| **Transfer Stok**    | ✅    | ✅    | ❌    |
+| **Hapus Transaksi**  | ✅    | ❌    | ❌    |
+| **Audit Logs**       | ✅    | ❌    | ✅    |
+| **Laporan**          | ✅    | ❌    | ✅    |
+| **Profil Perusahaan**| ✅    | ❌    | ❌    |
 
----
-
-## 📱 Akses dari HP (Mobile)
-
-Untuk mengakses dari HP di jaringan yang sama:
-
-1. Jalankan server dengan:
-   ```bash
-   php artisan serve --host=0.0.0.0 --port=8000
-   ```
-2. Cari IP komputer:
-   ```bash
-   ipconfig  # Windows
-   ifconfig  # Mac/Linux
-   ```
-3. Akses dari HP: `http://[IP_KOMPUTER]:8000`
-
-**Catatan untuk Kamera Scanner:**
-- Kamera membutuhkan HTTPS atau localhost
-- Untuk HTTP di jaringan lokal, gunakan Chrome flags:
-  `chrome://flags/#unsafely-treat-insecure-origin-as-secure`
+*Catatan: Staff gudang hanya fokus pada operasional (input barang, transfer), sedangkan Owner hanya fokus pada monitoring angka dan audit.*
 
 ---
 
-## 🧑‍💻 Teknologi
+## 📱 Akses Mobile
 
-- **Backend:** Laravel 11
-- **Frontend:** Bootstrap 5, Blade Templates
-- **Database:** MySQL
-- **Icons:** Bootstrap Icons
-- **Fonts:** Inter (Google Fonts)
-- **Barcode:** picqer/php-barcode-generator, html5-qrcode
-- **Export:** barryvdh/laravel-dompdf, maatwebsite/excel
+Aplikasi ini responsif dan bisa diakses dari Smartphone/Tablet untuk keperluan scanning barcode di gudang.
 
----
-
-## 📄 Lisensi
-
-MIT License - Silakan gunakan untuk keperluan pembelajaran atau komersial.
+1. Pastikan HP dan Laptop/Server ada di **WiFi yang sama**.
+2. Jalankan: `php artisan serve --host=0.0.0.0`
+3. Cek IP Laptop: `ipconfig` (Windows)
+4. Buka Browser HP: `http://192.168.x.x:8000`
 
 ---
 
 ## 👨‍💻 Pengembang
 
-Dikembangkan dengan ❤️ menggunakan Laravel 11.
+Sistem ini dikembangkan khusus untuk memudahkan pencatatan stok yang akurat dan transparan.
+Menggunakan **Laravel 12** untuk performa tinggi dan **Bootstrap 5** untuk antarmuka yang bersih.

@@ -29,12 +29,13 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'warehouse_id',
     ];
 
     /**
      * The attributes that should be hidden for serialization.
      *
-     * @var list<string>
+     * @var array<int, string>
      */
     protected $hidden = [
         'password',
@@ -52,6 +53,11 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function warehouse()
+    {
+        return $this->belongsTo(Warehouse::class);
     }
 
     /**
@@ -76,6 +82,17 @@ class User extends Authenticatable
     public function isOwner(): bool
     {
         return $this->role === self::ROLE_OWNER;
+    }
+
+    // Access Check Helper
+    public function hasWarehouseAccess($warehouseId)
+    {
+        if ($this->isAdmin() || $this->isOwner()) {
+            return true; // Admin/Owner can access all
+        }
+        
+        // Staff can only access their assigned warehouse
+        return $this->warehouse_id == $warehouseId;
     }
 
     /**

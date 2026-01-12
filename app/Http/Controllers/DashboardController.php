@@ -16,24 +16,26 @@ class DashboardController extends Controller
         $this->stockService = $stockService;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $stats = $this->stockService->getDashboardStats();
-        $lowStockItems = $this->stockService->getLowStockItems();
-        $recentTransactions = $this->stockService->getRecentTransactions(10);
-
-        // Get chart data for last 7 days
-        $chartData = $this->getChartData();
+        $warehouseId = $request->get('warehouse_id');
+        
+        $stats = $this->stockService->getDashboardStats($warehouseId);
+        $recentTransactions = $this->stockService->getRecentTransactions(5, $warehouseId);
+        $lowStockItems = $this->stockService->getLowStockItems(5, $warehouseId);
+        $warehouses = \App\Models\Warehouse::orderBy('name')->get();
+        $chartData = $this->getChartData($warehouseId);
 
         return view('dashboard.index', compact(
             'stats',
-            'lowStockItems',
             'recentTransactions',
+            'lowStockItems',
+            'warehouses',
             'chartData'
         ));
     }
 
-    private function getChartData(): array
+    private function getChartData(?int $warehouseId = null): array
     {
         $days = [];
         $stockIn = [];
@@ -43,13 +45,16 @@ class DashboardController extends Controller
             $date = now()->subDays($i);
             $days[] = $date->format('d M');
 
-            $stockIn[] = StockTransaction::whereDate('transaction_date', $date)
-                ->stockIn()
-                ->sum('quantity');
+            $inQuery = StockTransaction::whereDate('transaction_date', $date)->stockIn();
+            $outQuery = StockTransaction::whereDate('transaction_date', $date)->stockOut();
 
-            $stockOut[] = StockTransaction::whereDate('transaction_date', $date)
-                ->stockOut()
-                ->sum('quantity');
+            if ($warehouseId) {
+                $inQuery->whereHas('stockHeader', fn($q) => $q->where('warehouse_id', $warehouseId));
+                $outQuery->whereHas('stockHeader', fn($q) => $q->where('warehouse_id', $warehouseId));
+            }
+
+            $stockIn[] = $inQuery->sum('quantity');
+            $stockOut[] = $outQuery->sum('quantity');
         }
 
         return [

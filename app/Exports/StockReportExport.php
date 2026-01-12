@@ -2,7 +2,7 @@
 
 namespace App\Exports;
 
-use App\Models\Item;
+use App\Models\WarehouseItem;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
@@ -14,26 +14,37 @@ class StockReportExport implements FromCollection, WithHeadings, WithMapping, Wi
 {
     protected $categoryId;
     protected $lowStockOnly;
+    protected $warehouseId;
 
-    public function __construct($categoryId = null, $lowStockOnly = false)
+    public function __construct($categoryId = null, $lowStockOnly = false, $warehouseId = null)
     {
         $this->categoryId = $categoryId;
         $this->lowStockOnly = $lowStockOnly;
+        $this->warehouseId = $warehouseId;
     }
 
     public function collection()
     {
-        $query = Item::with(['category', 'unit']);
+        $query = WarehouseItem::with(['item.category', 'item.unit', 'warehouse']);
 
         if ($this->categoryId) {
-            $query->where('category_id', $this->categoryId);
+            $query->whereHas('item', function ($q) {
+                $q->where('category_id', $this->categoryId);
+            });
+        }
+
+        if ($this->warehouseId) {
+            $query->where('warehouse_id', $this->warehouseId);
         }
 
         if ($this->lowStockOnly) {
-            $query->lowStock();
+            $query->whereColumn('stock', '<=', 'minimum_stock');
         }
 
-        return $query->orderBy('name')->get();
+        return $query->get()->sortBy(function ($warehouseItem) {
+            // Sort by Warehouse Name then Item Name
+            return $warehouseItem->warehouse->name . $warehouseItem->item->name;
+        });
     }
 
     public function headings(): array
@@ -43,6 +54,8 @@ class StockReportExport implements FromCollection, WithHeadings, WithMapping, Wi
             'Nama Barang',
             'Kategori',
             'Satuan',
+            'Gudang',
+            'Kota',
             'Stok',
             'Minimum Stok',
             'Status',
@@ -50,17 +63,21 @@ class StockReportExport implements FromCollection, WithHeadings, WithMapping, Wi
         ];
     }
 
-    public function map($item): array
+    public function map($warehouseItem): array
     {
+        $isLow = $warehouseItem->stock <= $warehouseItem->minimum_stock;
+
         return [
-            $item->code,
-            $item->name,
-            $item->category->name,
-            $item->unit->abbreviation,
-            $item->stock,
-            $item->minimum_stock,
-            $item->isLowStock() ? 'STOK MENIPIS' : 'Normal',
-            $item->rack_location ?? '-',
+            $warehouseItem->item->code,
+            $warehouseItem->item->name,
+            $warehouseItem->item->category->name,
+            $warehouseItem->item->unit->abbreviation,
+            $warehouseItem->warehouse->name,
+            $warehouseItem->warehouse->city ?? '-',
+            $warehouseItem->stock,
+            $warehouseItem->minimum_stock,
+            $isLow ? 'STOK MENIPIS' : 'Normal',
+            $warehouseItem->item->rack_location ?? '-',
         ];
     }
 

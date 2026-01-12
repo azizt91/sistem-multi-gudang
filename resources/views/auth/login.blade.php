@@ -13,6 +13,9 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ $companyProfile->favicon_url ?? asset('storage/company/favicon.png') }}">
+    
     <style>
         :root, [data-bs-theme="light"] {
             --primary: #4F46E5;
@@ -92,15 +95,15 @@
         }
 
         .login-header .logo {
-            width: 60px;
-            height: 60px;
+            width: 80px;
+            height: 80px;
             background: rgba(255,255,255,0.2);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             margin: 0 auto 1rem;
-            font-size: 1.75rem;
+            padding: 5px;
         }
 
         .login-header h4 {
@@ -212,9 +215,14 @@
                     <i class="bi bi-moon-fill" id="themeIcon"></i>
                 </button>
                 <div class="logo">
-                    <i class="bi bi-box-seam"></i>
+                    @if($companyProfile && $companyProfile->logo_path)
+                    <img src="{{ Storage::url($companyProfile->logo_path) }}" alt="Logo" class="img-fluid rounded-circle" style="width: 100%; height: 100%; object-fit: cover;">
+                    @else
+                    <i class="bi bi-box-seam" style="font-size: 2rem;"></i>
+                    @endif
                 </div>
-                <h4>Warehouse Management</h4>
+                <h4>{{ $companyProfile->company_name ?? 'Warehouse Management' }}</h4>
+                <p class="small text-white-50 mb-0">Warehouse Management</p>
                 <p>Silakan login untuk melanjutkan</p>
             </div>
             

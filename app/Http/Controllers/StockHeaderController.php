@@ -4,16 +4,19 @@ namespace App\Http\Controllers;
 
 use App\Models\Item;
 use App\Models\StockHeader;
+use App\Services\AuditService;
 use App\Services\StockService;
 use Illuminate\Http\Request;
 
 class StockHeaderController extends Controller
 {
     protected $stockService;
+    protected $auditService;
 
-    public function __construct(StockService $stockService)
+    public function __construct(StockService $stockService, AuditService $auditService)
     {
         $this->stockService = $stockService;
+        $this->auditService = $auditService;
     }
 
     /**
@@ -21,7 +24,17 @@ class StockHeaderController extends Controller
      */
     public function index(Request $request)
     {
-        $query = StockHeader::with(['user', 'transactions']);
+        $user = auth()->user();
+        $query = StockHeader::with(['user', 'transactions', 'warehouse']);
+
+        // Staff: Force Warehouse Scope
+        if ($user->isStaff()) {
+            $query->where('warehouse_id', $user->warehouse_id);
+        } 
+        // Admin/Owner: Filter if requested
+        else if ($request->filled('warehouse_id')) {
+            $query->where('warehouse_id', $request->warehouse_id);
+        }
 
         // Filter by type
         if ($request->filled('type')) {
@@ -34,8 +47,16 @@ class StockHeaderController extends Controller
         }
 
         $headers = $query->orderBy('transaction_date', 'desc')->paginate(20);
+        
+        // Warehouses for filter dropdown
+        $warehouses = \App\Models\Warehouse::orderBy('name')->get();
+        if ($user->isStaff()) {
+             // Although filtered in query, for UI we pass all but view will likely hide/disable or 
+             // in view logic we can just pass the one relevant.
+             // For simplicity, let view handle UI hiding, but query is secure.
+        }
 
-        return view('stock-headers.index', compact('headers'));
+        return view('stock-headers.index', compact('headers', 'warehouses'));
     }
 
     /**
@@ -43,9 +64,19 @@ class StockHeaderController extends Controller
      */
     public function createStockIn()
     {
+        if (auth()->user()->isOwner()) {
+            abort(403);
+        }
+
         $items = Item::with('unit')->orderBy('name')->get();
         $type = 'in';
-        return view('stock-headers.create', compact('items', 'type'));
+        
+        // Scope Warehouses for Dropdown
+        $warehouses = auth()->user()->isStaff() 
+            ? \App\Models\Warehouse::where('id', auth()->user()->warehouse_id)->get()
+            : \App\Models\Warehouse::orderBy('name')->get();
+
+        return view('stock-headers.create', compact('items', 'type', 'warehouses'));
     }
 
     /**
@@ -53,9 +84,24 @@ class StockHeaderController extends Controller
      */
     public function createStockOut()
     {
-        $items = Item::with('unit')->where('stock', '>', 0)->orderBy('name')->get();
+        if (auth()->user()->isOwner()) {
+            abort(403);
+        }
+
+        $items = Item::with('unit')->whereHas('warehouseItems', function($q) {
+             // If Staff, only show items with stock IN THEIR warehouse
+             if (auth()->user()->isStaff()) {
+                 $q->where('warehouse_id', auth()->user()->warehouse_id);
+             }
+             $q->where('stock', '>', 0);
+        })->orderBy('name')->get();
+        
         $type = 'out';
-        return view('stock-headers.create', compact('items', 'type'));
+        $warehouses = auth()->user()->isStaff() 
+            ? \App\Models\Warehouse::where('id', auth()->user()->warehouse_id)->get()
+            : \App\Models\Warehouse::orderBy('name')->get();
+
+        return view('stock-headers.create', compact('items', 'type', 'warehouses'));
     }
 
     /**
@@ -63,7 +109,12 @@ class StockHeaderController extends Controller
      */
     public function store(Request $request)
     {
+        if (auth()->user()->isOwner()) {
+            abort(403);
+        }
+
         $validated = $request->validate([
+            'warehouse_id' => 'required|exists:warehouses,id',
             'type' => 'required|in:in,out',
             'notes' => 'nullable|string|max:1000',
             'items' => 'required|array|min:1',
@@ -72,11 +123,17 @@ class StockHeaderController extends Controller
             'items.*.notes' => 'nullable|string|max:500',
         ]);
 
+        // Security Check: Staff cannot transact for other warehouses
+        if (auth()->user()->isStaff() && $validated['warehouse_id'] != auth()->user()->warehouse_id) {
+            abort(403, 'Anda tidak diizinkan mencatat transaksi di gudang ini.');
+        }
+
         try {
             $header = $this->stockService->createTransaction(
                 $validated['type'],
                 $validated['items'],
-                $validated['notes']
+                $validated['notes'],
+                $validated['warehouse_id']
             );
 
             $typeLabel = $validated['type'] === 'in' ? 'masuk' : 'keluar';
@@ -93,6 +150,10 @@ class StockHeaderController extends Controller
      */
     public function show(StockHeader $stockHeader)
     {
+        if (!auth()->user()->hasWarehouseAccess($stockHeader->warehouse_id)) {
+            abort(403);
+        }
+
         $stockHeader->load(['transactions.item.unit', 'user']);
         return view('stock-headers.show', compact('stockHeader'));
     }
@@ -102,6 +163,10 @@ class StockHeaderController extends Controller
      */
     public function receipt(StockHeader $stockHeader)
     {
+        if (!auth()->user()->hasWarehouseAccess($stockHeader->warehouse_id)) {
+            abort(403);
+        }
+        
         $stockHeader->load(['transactions.item.unit', 'user']);
         return view('stock-headers.receipt', compact('stockHeader'));
     }
@@ -111,6 +176,10 @@ class StockHeaderController extends Controller
      */
     public function saveSignatures(Request $request, StockHeader $stockHeader)
     {
+        if (!auth()->user()->hasWarehouseAccess($stockHeader->warehouse_id)) {
+             abort(403);
+        }
+
         // Check if receipt is locked
         if ($stockHeader->isReceiptLocked()) {
             return response()->json([
@@ -174,6 +243,24 @@ class StockHeaderController extends Controller
 
         $stockHeader->update($data);
 
+        // START AUDIT LOG
+        if (!empty($data['sender_signature']) || !empty($data['receiver_signature'])) {
+            $this->auditService->log(
+                'sign_receipt', 
+                "Menandatangani tanda terima transaksi ({$stockHeader->document_number})", 
+                $stockHeader
+            );
+        }
+        
+        if ($request->boolean('lock_receipt')) {
+            $this->auditService->log(
+                'lock_receipt', 
+                "Mengunci tanda terima transaksi ({$stockHeader->document_number})", 
+                $stockHeader
+            );
+        }
+        // END AUDIT LOG
+
         return response()->json([
             'success' => true,
             'message' => 'Tanda tangan berhasil disimpan.',
@@ -185,6 +272,10 @@ class StockHeaderController extends Controller
      */
     public function downloadPdf(StockHeader $stockHeader)
     {
+        if (!auth()->user()->hasWarehouseAccess($stockHeader->warehouse_id)) {
+            abort(403);
+        }
+
         $stockHeader->load(['transactions.item.unit', 'user']);
 
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('stock-headers.pdf.receipt', compact('stockHeader'));
@@ -212,6 +303,14 @@ class StockHeaderController extends Controller
             $this->stockService->revertTransaction($transaction);
         }
 
+        // START AUDIT LOG
+        $this->auditService->log(
+            'delete_transaction', 
+            "Menghapus transaksi ({$stockHeader->document_number}) dan mengembalikan stok.", 
+            null // Entity deleted, no polymorphism
+        );
+        // END AUDIT LOG
+
         $stockHeader->delete();
 
         return redirect()->route('stock-headers.index')
@@ -222,11 +321,24 @@ class StockHeaderController extends Controller
      */
     public function quickStockIn(Request $request)
     {
+        if (auth()->user()->isOwner()) abort(403);
+
         $validated = $request->validate([
             'code' => 'required|string',
             'quantity' => 'required|integer|min:1',
             'notes' => 'nullable|string|max:500',
+            'warehouse_id' => 'nullable|exists:warehouses,id',
         ]);
+
+        // Security Policy
+        $warehouseId = $validated['warehouse_id'];
+        if (auth()->user()->isStaff()) {
+            // Force assigned warehouse
+            $warehouseId = auth()->user()->warehouse_id; 
+        } else {
+             // Admin/Owner defaults to first, but owner is blocked above
+             if (!$warehouseId) $warehouseId = \App\Models\Warehouse::first()->id;
+        }
 
         $item = Item::with(['unit'])->where('code', $validated['code'])->first();
 
@@ -238,34 +350,20 @@ class StockHeaderController extends Controller
         }
 
         try {
-            // Create Transaction with Header
-            $itemsData = [
-                [
-                    'item_id' => $item->id,
-                    'quantity' => $validated['quantity'],
-                    'notes' => $validated['notes']
-                ]
-            ];
-            
-            $this->stockService->createTransaction(
-                'in', 
-                $itemsData, 
-                'Quick Scan via Barcode'
-            );
+            $itemsData = [['item_id' => $item->id, 'quantity' => $validated['quantity'], 'notes' => $validated['notes']]];
+
+            $this->stockService->createTransaction('in', $itemsData, 'Quick Scan via Barcode', $warehouseId);
 
             return response()->json([
                 'success' => true,
                 'message' => "Stok masuk berhasil: +{$validated['quantity']} {$item->unit->abbreviation}",
                 'item' => [
                     'name' => $item->name,
-                    'stock' => $item->fresh()->stock,
+                    'stock' => $item->getStockInWarehouse($warehouseId),
                 ],
             ]);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage(),
-            ], 400);
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
         }
     }
 
@@ -274,11 +372,22 @@ class StockHeaderController extends Controller
      */
     public function quickStockOut(Request $request)
     {
+        if (auth()->user()->isOwner()) abort(403);
+     
         $validated = $request->validate([
             'code' => 'required|string',
             'quantity' => 'required|integer|min:1',
             'notes' => 'nullable|string|max:500',
+            'warehouse_id' => 'nullable|exists:warehouses,id',
         ]);
+
+        // Security Policy
+        $warehouseId = $validated['warehouse_id'];
+        if (auth()->user()->isStaff()) {
+            $warehouseId = auth()->user()->warehouse_id; 
+        } else {
+             if (!$warehouseId) $warehouseId = \App\Models\Warehouse::first()->id;
+        }
 
         $item = Item::with(['unit'])->where('code', $validated['code'])->first();
 
@@ -290,34 +399,20 @@ class StockHeaderController extends Controller
         }
 
         try {
-            // Create Transaction with Header
-            $itemsData = [
-                [
-                    'item_id' => $item->id,
-                    'quantity' => $validated['quantity'],
-                    'notes' => $validated['notes']
-                ]
-            ];
+            $itemsData = [['item_id' => $item->id, 'quantity' => $validated['quantity'], 'notes' => $validated['notes']]];
             
-            $this->stockService->createTransaction(
-                'out', 
-                $itemsData, 
-                'Quick Scan via Barcode'
-            );
+            $this->stockService->createTransaction('out', $itemsData, 'Quick Scan via Barcode', $warehouseId);
 
             return response()->json([
                 'success' => true,
                 'message' => "Stok keluar berhasil: -{$validated['quantity']} {$item->unit->abbreviation}",
                 'item' => [
                     'name' => $item->name,
-                    'stock' => $item->fresh()->stock,
+                    'stock' => $item->getStockInWarehouse($warehouseId),
                 ],
             ]);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage(),
-            ], 400);
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
         }
     }
 }

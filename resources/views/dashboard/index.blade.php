@@ -3,6 +3,33 @@
 @section('title', 'Dashboard')
 
 @section('content')
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="mb-1">Dashboard</h4>
+        <p class="text-muted mb-0">Overview status gudang</p>
+    </div>
+    <div>
+        @if(auth()->user()->isAdmin() || auth()->user()->isOwner())
+        <form action="{{ route('dashboard') }}" method="GET" class="d-flex gap-2">
+            <select name="warehouse_id" class="form-select form-select-sm" onchange="this.form.submit()">
+                <option value="">Semua Gudang</option>
+                @foreach($warehouses as $w)
+                    <option value="{{ $w->id }}" {{ request('warehouse_id') == $w->id ? 'selected' : '' }}>
+                        {{ $w->name }}
+                    </option>
+                @endforeach
+            </select>
+            <noscript><button type="submit" class="btn btn-primary btn-sm">Go</button></noscript>
+        </form>
+        @else
+        <span class="badge bg-primary fs-6">
+            <i class="bi bi-geo-alt-fill me-1"></i>
+            {{ auth()->user()->warehouse->name ?? 'Gudang Belum Ditentukan' }}
+        </span>
+        @endif
+    </div>
+</div>
+
 <!-- Stats Cards -->
 <div class="row g-3 mb-4">
     <div class="col-xl-3 col-md-6">

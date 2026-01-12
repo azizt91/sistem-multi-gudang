@@ -86,6 +86,16 @@
                 </div>
 
                 <div class="mt-3 pt-3 border-top">
+                    <!-- Warehouse Selection -->
+                    <div class="mb-3">
+                        <label class="form-label small">Gudang <span class="text-danger">*</span></label>
+                        <select id="warehouseSelect" class="form-select form-select-sm">
+                            @foreach($warehouses as $w)
+                                <option value="{{ $w->id }}">{{ $w->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
                     <!-- Global Notes -->
                     <div class="mb-3">
                         <label class="form-label small">Catatan Transaksi (Opsional)</label>
@@ -105,6 +115,7 @@
 <form id="transactionForm" action="{{ route('stock-headers.store') }}" method="POST" style="display:none;">
     @csrf
     <input type="hidden" name="type" id="formType">
+    <input type="hidden" name="warehouse_id" id="formWarehouseId">
     <input type="hidden" name="notes" id="formNotes">
     <div id="formItemsContainer"></div>
 </form>
@@ -440,8 +451,15 @@ document.addEventListener('DOMContentLoaded', function() {
         const itemsContainer = document.getElementById('formItemsContainer');
         const mode = document.querySelector('input[name="scanMode"]:checked').value;
         const notes = document.getElementById('globalNotes').value;
+        const warehouseId = document.getElementById('warehouseSelect').value;
+
+        if (!warehouseId) {
+            alert('Pilih gudang terlebih dahulu');
+            return;
+        }
 
         document.getElementById('formType').value = mode;
+        document.getElementById('formWarehouseId').value = warehouseId;
         document.getElementById('formNotes').value = notes;
         itemsContainer.innerHTML = '';
 

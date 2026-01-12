@@ -41,12 +41,22 @@
 <!-- Filters -->
 <div class="card mb-4">
     <div class="card-body">
-        <form action="{{ route('items.index') }}" method="GET" class="row g-3" id="filterForm">
+        <form class="row g-3" id="filterForm">
             <div class="col-md-4">
                 <div class="input-group">
-                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                    <button class="btn btn-outline-secondary" type="button"><i class="bi bi-search"></i></button>
                     <input type="text" class="form-control" name="search" placeholder="Cari kode atau nama barang..." value="{{ request('search') }}">
                 </div>
+            </div>
+            <div class="col-md-3">
+                <select name="warehouse_id" class="form-select">
+                    <option value="">Semua Gudang (Total Stok)</option>
+                    @foreach($warehouses as $w)
+                        <option value="{{ $w->id }}" {{ request('warehouse_id') == $w->id ? 'selected' : '' }}>
+                            {{ $w->name }}
+                        </option>
+                    @endforeach
+                </select>
             </div>
             <div class="col-md-3">
                 <select name="category_id" class="form-select">
@@ -58,16 +68,11 @@
                     @endforeach
                 </select>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <div class="form-check form-switch mt-2">
                     <input class="form-check-input" type="checkbox" name="low_stock" value="1" id="lowStock" {{ request('low_stock') ? 'checked' : '' }}>
-                    <label class="form-check-label" for="lowStock">Hanya Stok Menipis</label>
+                    <label class="form-check-label" for="lowStock">Stok Menipis</label>
                 </div>
-            </div>
-            <div class="col-md-2">
-                <button type="submit" class="btn btn-primary w-100">
-                    <i class="bi bi-funnel me-1"></i> Filter
-                </button>
             </div>
         </form>
     </div>
@@ -85,112 +90,17 @@
     <div id="selectedItemsContainer"></div>
 </form>
 
-<!-- Items Table -->
-<div class="card">
-    <div class="card-body p-0">
-        <div class="table-responsive">
-            <table class="table table-hover mb-0">
-                <thead>
-                    <tr>
-                        <th style="width: 40px;">
-                            <input type="checkbox" class="form-check-input" id="selectAllCheckbox" title="Pilih Semua">
-                        </th>
-                        <th style="width: 100px;">Barcode</th>
-                        <th>Kode</th>
-                        <th>Nama Barang</th>
-                        <th>Kategori</th>
-                        <th class="text-center">Stok</th>
-                        <th>Satuan</th>
-                        <th>Lokasi</th>
-                        <th style="width: 100px;">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($items as $item)
-                    <tr>
-                        <td>
-                            <input type="checkbox" class="form-check-input item-checkbox" value="{{ $item->id }}" data-code="{{ $item->code }}">
-                        </td>
-                        <td>
-                            <img src="{{ $item->generateBarcode() }}" alt="Barcode" class="img-fluid" style="max-height: 30px;">
-                        </td>
-                        <td><code>{{ $item->code }}</code></td>
-                        <td>
-                            <a href="{{ route('items.show', $item) }}" class="text-decoration-none fw-semibold">
-                                {{ $item->name }}
-                            </a>
-                        </td>
-                        <td>
-                            <span class="badge bg-secondary">{{ $item->category->name }}</span>
-                        </td>
-                        <td class="text-center">
-                            @if($item->isLowStock())
-                            <span class="badge bg-danger low-stock-badge" title="Stok dibawah minimum ({{ $item->minimum_stock }})">
-                                {{ $item->stock }}
-                            </span>
-                            @else
-                            <span class="badge bg-success">{{ $item->stock }}</span>
-                            @endif
-                        </td>
-                        <td>{{ $item->unit->abbreviation }}</td>
-                        <td>{{ $item->rack_location ?? '-' }}</td>
-                        <td>
-                            <div class="dropdown">
-                                <button class="btn btn-sm btn-light border dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                    <i class="bi bi-three-dots-vertical"></i>
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-end">
-                                    <li>
-                                        <a class="dropdown-item" href="{{ route('items.show', $item) }}">
-                                            <i class="bi bi-eye text-info me-2"></i> Lihat Detail
-                                        </a>
-                                    </li>
-                                    @if(auth()->user()->isAdmin())
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li>
-                                        <a class="dropdown-item" href="{{ route('items.edit', $item) }}">
-                                            <i class="bi bi-pencil text-primary me-2"></i> Edit
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <form action="{{ route('items.destroy', $item) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus barang ini?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="dropdown-item text-danger">
-                                                <i class="bi bi-trash me-2"></i> Hapus
-                                            </button>
-                                        </form>
-                                    </li>
-                                    @endif
-                                </ul>
-                            </div>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="9" class="text-center py-5">
-                            <i class="bi bi-inbox fs-1 text-muted"></i>
-                            <p class="text-muted mt-2 mb-0">Tidak ada barang ditemukan</p>
-                        </td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-    </div>
-    @if($items->hasPages())
-    <div class="card-footer">
-        {{ $items->withQueryString()->links() }}
-    </div>
-    @endif
+<!-- Items Table Container -->
+<div id="items-container">
+    @include('items.partials.table')
 </div>
 @endsection
 
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const selectAllCheckbox = document.getElementById('selectAllCheckbox');
-    const itemCheckboxes = document.querySelectorAll('.item-checkbox');
+    let selectAllCheckbox = document.getElementById('selectAllCheckbox');
+    let itemCheckboxes = document.querySelectorAll('.item-checkbox');
     const bulkActionsDropdown = document.getElementById('bulkActionsDropdown');
     const selectedCountEl = document.getElementById('selectedCount');
     const printSelectedBtn = document.getElementById('printSelectedBtn');
@@ -198,70 +108,157 @@ document.addEventListener('DOMContentLoaded', function() {
     const printForm = document.getElementById('printForm');
     const selectedItemsContainer = document.getElementById('selectedItemsContainer');
     const printAllInput = document.getElementById('printAllInput');
+    const filterForm = document.getElementById('filterForm');
+    const itemsContainer = document.getElementById('items-container');
+
+    // Debounce function to limit request frequency
+    function debounce(func, wait) {
+        let timeout;
+        return function(...args) {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(this, args), wait);
+        };
+    }
+
+    // Generic function to load URL via AJAX
+    function loadUrl(url) {
+        history.pushState(null, '', url);
+
+        fetch(url, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.text())
+        .then(html => {
+            itemsContainer.innerHTML = html;
+            rebindEvents();
+            updateUI();
+        })
+        .catch(error => console.error('Error fetching items:', error));
+    }
+
+    // Function to fetch items via AJAX (from filter)
+    function fetchItems() {
+        const formData = new FormData(filterForm);
+        const params = new URLSearchParams(formData);
+        const url = '{{ route("items.index") }}?' + params.toString();
+        loadUrl(url);
+    }
+
+    // Attach listeners to filter inputs
+    const inputs = filterForm.querySelectorAll('input, select');
+    inputs.forEach(input => {
+        if (input.name === 'search') {
+            input.addEventListener('input', debounce(fetchItems, 500));
+        } else {
+            input.addEventListener('change', fetchItems);
+        }
+        
+        if (input.tagName === 'INPUT') {
+            input.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    fetchItems();
+                }
+            });
+        }
+    });
+
+    // Rebind events for dynamic content
+    function rebindEvents() {
+        selectAllCheckbox = document.getElementById('selectAllCheckbox');
+        itemCheckboxes = document.querySelectorAll('.item-checkbox');
+        
+        // Rebind Checkboxes
+        if (selectAllCheckbox) {
+            selectAllCheckbox.addEventListener('change', function() {
+                itemCheckboxes.forEach(cb => cb.checked = this.checked);
+                updateUI();
+            });
+        }
+
+        itemCheckboxes.forEach(cb => {
+            cb.addEventListener('change', updateUI);
+        });
+
+        // Rebind Pagination Links
+        const paginationLinks = itemsContainer.querySelectorAll('.pagination a');
+        paginationLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                loadUrl(this.href);
+            });
+        });
+    }
 
     function updateUI() {
+        // Find fresh checkboxes
+        itemCheckboxes = document.querySelectorAll('.item-checkbox');
         const checked = document.querySelectorAll('.item-checkbox:checked');
         const count = checked.length;
         
-        selectedCountEl.textContent = count;
-        bulkActionsDropdown.style.display = count > 0 ? 'block' : 'none';
+        if (selectedCountEl) selectedCountEl.textContent = count;
+        if (bulkActionsDropdown) bulkActionsDropdown.style.display = count > 0 ? 'block' : 'none';
         
-        // Update select all checkbox state
         if (count === 0) {
-            selectAllCheckbox.checked = false;
-            selectAllCheckbox.indeterminate = false;
-        } else if (count === itemCheckboxes.length) {
-            selectAllCheckbox.checked = true;
-            selectAllCheckbox.indeterminate = false;
+            if (selectAllCheckbox) {
+                selectAllCheckbox.checked = false;
+                selectAllCheckbox.indeterminate = false;
+            }
+        } else if (count === itemCheckboxes.length && itemCheckboxes.length > 0) {
+            if (selectAllCheckbox) {
+                selectAllCheckbox.checked = true;
+                selectAllCheckbox.indeterminate = false;
+            }
         } else {
-            selectAllCheckbox.checked = false;
-            selectAllCheckbox.indeterminate = true;
+            if (selectAllCheckbox) {
+                selectAllCheckbox.checked = false;
+                if (count > 0) selectAllCheckbox.indeterminate = true;
+            }
         }
     }
 
-    // Select all checkbox
-    selectAllCheckbox.addEventListener('change', function() {
-        itemCheckboxes.forEach(cb => cb.checked = this.checked);
-        updateUI();
-    });
+    // Initial binding
+    rebindEvents();
 
-    // Individual checkboxes
-    itemCheckboxes.forEach(cb => {
-        cb.addEventListener('change', updateUI);
-    });
+    // Print selected logic
+    if (printSelectedBtn) {
+        printSelectedBtn.addEventListener('click', function() {
+            const checked = document.querySelectorAll('.item-checkbox:checked');
+            if (checked.length === 0) {
+                alert('Pilih minimal satu barang');
+                return;
+            }
 
-    // Print selected
-    printSelectedBtn.addEventListener('click', function() {
-        const checked = document.querySelectorAll('.item-checkbox:checked');
-        if (checked.length === 0) {
-            alert('Pilih minimal satu barang');
-            return;
-        }
+            selectedItemsContainer.innerHTML = '';
+            printAllInput.value = '0';
+            
+            checked.forEach(cb => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'item_ids[]';
+                input.value = cb.value;
+                selectedItemsContainer.appendChild(input);
+            });
 
-        // Clear and populate hidden inputs
-        selectedItemsContainer.innerHTML = '';
-        printAllInput.value = '0';
-        
-        checked.forEach(cb => {
-            const input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = 'item_ids[]';
-            input.value = cb.value;
-            selectedItemsContainer.appendChild(input);
+            printForm.submit();
         });
+    }
 
-        printForm.submit();
-    });
-
-    // Print all (based on current filter)
-    printAllBtn.addEventListener('click', function() {
-        selectedItemsContainer.innerHTML = '';
-        printAllInput.value = '1';
-        printForm.submit();
-    });
-
-    // Initial state
-    updateUI();
+    // Print all logic
+    if (printAllBtn) {
+        printAllBtn.addEventListener('click', function() {
+            const formData = new FormData(filterForm);
+            printForm.elements['filter_search'].value = formData.get('search');
+            printForm.elements['filter_category_id'].value = formData.get('category_id');
+            printForm.elements['filter_low_stock'].value = formData.get('low_stock');
+            
+            selectedItemsContainer.innerHTML = '';
+            printAllInput.value = '1';
+            printForm.submit();
+        });
+    }
 });
 </script>
 @endpush

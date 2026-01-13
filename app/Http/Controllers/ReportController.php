@@ -220,9 +220,6 @@ class ReportController extends Controller
         );
     }
 
-    /**
-     * Export stock report to Excel
-     */
     public function exportStockExcel(Request $request)
     {
         return Excel::download(new StockReportExport(
@@ -230,6 +227,46 @@ class ReportController extends Controller
             $request->boolean('low_stock'), 
             $request->warehouse_id
         ), 'laporan-stok-' . now()->format('Y-m-d') . '.xlsx');
+    }
+
+    /**
+     * Export stock report to PDF
+     */
+    public function exportStockPdf(Request $request)
+    {
+        $warehouseId = $request->input('warehouse_id');
+        $categoryId = $request->input('category_id');
+        $lowStockOnly = $request->boolean('low_stock');
+
+        // Use WarehouseItem query to match Excel export logic
+        $query = \App\Models\WarehouseItem::with(['item.category', 'item.unit', 'warehouse']);
+
+        if ($categoryId) {
+            $query->whereHas('item', function ($q) use ($categoryId) {
+                $q->where('category_id', $categoryId);
+            });
+        }
+
+        if ($warehouseId) {
+            $query->where('warehouse_id', $warehouseId);
+        }
+
+        if ($lowStockOnly) {
+            $query->whereColumn('stock', '<=', 'minimum_stock');
+        }
+
+        // Get data and sort by Warehouse Name then Item Name
+        $items = $query->get()->sortBy(function ($warehouseItem) {
+            return $warehouseItem->warehouse->name . $warehouseItem->item->name;
+        });
+        
+        $warehouse = $warehouseId ? \App\Models\Warehouse::find($warehouseId) : null;
+        $category = $categoryId ? \App\Models\Category::find($categoryId) : null;
+
+        $pdf = Pdf::loadView('reports.pdf.stock', compact('items', 'warehouse', 'category', 'request'));
+        $pdf->setPaper('A4', 'landscape');
+
+        return $pdf->download('laporan-stok-' . now()->format('Y-m-d') . '.pdf');
     }
 
     /**

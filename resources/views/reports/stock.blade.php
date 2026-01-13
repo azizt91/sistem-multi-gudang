@@ -12,6 +12,9 @@
         <a href="{{ route('reports.stock.excel', request()->query()) }}" class="btn btn-success">
             <i class="bi bi-file-earmark-excel me-1"></i> Export Excel
         </a>
+        <a href="{{ route('reports.stock.pdf', request()->query()) }}" class="btn btn-danger ms-2">
+            <i class="bi bi-file-earmark-pdf me-1"></i> Export PDF
+        </a>
     </div>
 </div>
 

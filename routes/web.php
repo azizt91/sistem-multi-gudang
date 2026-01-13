@@ -94,8 +94,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/monthly/pdf', [ReportController::class, 'exportMonthlyPdf'])->name('monthly.pdf');
         Route::get('/monthly/excel', [ReportController::class, 'exportMonthlyExcel'])->name('monthly.excel');
         Route::get('/stock/excel', [ReportController::class, 'exportStockExcel'])->name('stock.excel');
-        Route::get('/transactions/excel', [ReportController::class, 'exportTransactionsExcel'])->name('transactions.excel');
-        Route::get('/stock/excel', [ReportController::class, 'exportStockExcel'])->name('stock.excel');
+        Route::get('/stock/pdf', [ReportController::class, 'exportStockPdf'])->name('stock.pdf');
         Route::get('/transactions/excel', [ReportController::class, 'exportTransactionsExcel'])->name('transactions.excel');
     });
 

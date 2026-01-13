@@ -15,15 +15,16 @@
                     <nav class="nav flex-column">
                         <a class="nav-link" href="#getting-started">🚀 Memulai</a>
                         <a class="nav-link" href="#dashboard">📊 Dashboard</a>
-                        <a class="nav-link" href="#profil">🏢 Profil Perusahaan</a>
-                        <a class="nav-link" href="#gudang">🏭 Manajemen Gudang</a>
+                        <a class="nav-link" href="#profile">🏢 Profil Perusahaan <span class="badge bg-danger rounded-pill ms-1" style="font-size: 0.6em;">New</span></a>
+                        <a class="nav-link" href="#gudang">🏭 Manajemen Gudang <span class="badge bg-danger rounded-pill ms-1" style="font-size: 0.6em;">New</span></a>
                         <a class="nav-link" href="#barang">📦 Manajemen Barang</a>
                         <a class="nav-link" href="#transaksi">🔄 Transaksi Stok</a>
-                        <a class="nav-link" href="#transfer">🚚 Transfer Stok</a>
+                        <a class="nav-link" href="#stock-transfer">🚚 Transfer Stok <span class="badge bg-danger rounded-pill ms-1" style="font-size: 0.6em;">New</span></a>
                         <a class="nav-link" href="#tanda-terima">📝 Tanda Terima</a>
                         <a class="nav-link" href="#barcode">📷 Scan Barcode</a>
+                        <a class="nav-link ms-3 small" href="#scanner-usb">↳ Scanner USB</a>
                         <a class="nav-link" href="#laporan">📈 Laporan</a>
-                        <a class="nav-link" href="#audit">🛡️ Audit Logs</a>
+                        <a class="nav-link" href="#audit">🛡️ Audit Logs <span class="badge bg-danger rounded-pill ms-1" style="font-size: 0.6em;">New</span></a>
                         <a class="nav-link" href="#user">👥 Manajemen User</a>
                         <a class="nav-link" href="#dark-mode">🌙 Dark Mode</a>
                         <a class="nav-link" href="#faq">❓ FAQ</a>
@@ -141,28 +142,34 @@
             </div>
 
             <!-- Profil Perusahaan -->
-            <div class="card mb-4" id="profil">
+            <!-- Profil Perusahaan -->
+            <div class="card mb-4" id="profile">
                 <div class="card-header">
-                    <h5 class="mb-0">🏢 Profil Perusahaan</h5>
+                    <h5 class="mb-0">🏢 Profil Perusahaan (Settings)</h5>
                 </div>
                 <div class="card-body">
                     <p>Halaman ini menampilkan informasi perusahaan yang akan muncul di kop laporan dan header tanda terima.</p>
                     
-                    <div class="text-center mb-3">
-                        <img src="{{ asset('images/manual/manual_company_profile.png') }}" alt="Profil Perusahaan" class="img-fluid rounded shadow">
-                        <p class="text-muted small mt-2">Gambar: Halaman Profil Perusahaan</p>
+                    <div class="alert alert-danger">
+                        <i class="bi bi-lock-fill me-2"></i>
+                        <strong>Akses Terbatas:</strong> Hanya <strong>Admin</strong> yang dapat mengubah pengaturan ini.
                     </div>
 
-                    <h6 class="fw-semibold">Informasi yang Ditampilkan:</h6>
+                    <div class="text-center mb-3">
+                        <img src="{{ asset('images/manual/company_profile.png') }}" alt="Profil Perusahaan" class="img-fluid rounded shadow" style="max-width: 400px; border: 2px dashed #ccc;">
+                        <p class="text-muted small mt-2">Gambar 14: Halaman Edit Profile Perusahaan</p>
+                    </div>
+
+                    <h6 class="fw-semibold">Data yang Diatur:</h6>
                     <ul>
-                        <li><strong>Nama Perusahaan</strong></li>
-                        <li><strong>Alamat Lengkap</strong></li>
-                        <li><strong>Kontak (Email & Telepon)</strong></li>
+                        <li><strong>Nama Perusahaan:</strong> Muncul di header aplikasi dan laporan.</li>
+                        <li><strong>Alamat & Kontak:</strong> Muncul di kop surat laporan PDF.</li>
+                        <li><strong>Logo Perusahaan:</strong> Muncul di halaman Login dan pojok kiri atas laporan.</li>
                     </ul>
 
                     <div class="alert alert-info">
                         <i class="bi bi-info-circle me-2"></i>
-                        <strong>Info:</strong> Saat ini data perusahan diatur melalui Database Seeder. Hubungi Administrator jika ada perubahan data perusahaan.
+                        <strong>Info:</strong> Hubungi Administrator jika ada perubahan data perusahaan.
                     </div>
                 </div>
             </div>
@@ -306,7 +313,7 @@
             </div>
 
             <!-- Transfer Stok -->
-            <div class="card mb-4" id="transfer">
+            <div class="card mb-4" id="stock-transfer">
                 <div class="card-header">
                     <h5 class="mb-0">🚚 Transfer Stok Antar Gudang</h5>
                 </div>
@@ -337,10 +344,10 @@
             <!-- Tanda Terima -->
             <div class="card mb-4" id="tanda-terima">
                 <div class="card-header">
-                    <h5 class="mb-0">📝 Tanda Terima (Baru!)</h5>
+                    <h5 class="mb-0">📝 Tanda Terima Digital</h5>
                 </div>
                 <div class="card-body">
-                    <p>Setiap transaksi stok dapat dilengkapi dengan tanda terima resmi yang mencakup daftar barang dan tanda tangan digital.</p>
+                    <p>Membuat bukti serah terima barang secara digital tanpa kertas.</p>
                     
                     <div class="text-center mb-4">
                         <img src="{{ asset('images/manual/receipt-form.png') }}" alt="Form Tanda Terima" class="img-fluid rounded shadow" style="max-width: 700px;">
@@ -424,6 +431,35 @@
                         <img src="{{ asset('images/manual/print-barcode.png') }}" alt="Cetak Barcode" class="img-fluid rounded shadow" style="width: 100%; max-width: 400px;">
                         <p class="text-muted small mt-2">Gambar 10: Preview Cetak Barcode</p>
                     </div>
+
+                    <hr class="my-4">
+
+                    <h6 class="fw-semibold mt-4" id="scanner-usb">📷 Menggunakan Scanner USB (Alat Tembak)</h6>
+                    <div class="alert alert-primary">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>Info:</strong> Scanner USB bekerja dengan cara menggantikan fungsi Keyboard. Alat ini mendeteksi barcode lalu mengetikkan kodenya secara cepat.
+                    </div>
+                    
+                    <p><strong>Cara Penggunaan:</strong></p>
+                    <ol>
+                        <li>
+                            Klik kolom input teks di mana Anda ingin memasukkan kode barang (Contoh: "Ketik kode barang..." di menu Scanner, atau kolom Kode Barang di Tambah Barang).
+                            <div class="text-center my-3">
+                                <img src="{{ asset('images/manual/manual_usb_scanner_1.png') }}" alt="Ilustrasi Input Focus" class="img-fluid rounded shadow" style="max-width: 400px; border: 2px dashed #ccc;">
+                                <p class="text-muted small mt-2">Gambar 11: Pastikan kursor aktif di kolom input</p>
+                            </div>
+                        </li>
+                        <li>
+                            Arahkan alat scanner ke barcode barang lalu tekan pemicu (tembak).
+                        </li>
+                        <li>Kode akan otomatis terisi di kolom tersebut.</li>
+                        <li>Jika scanner Anda memiliki fitur <strong>"Auto Enter"</strong> (biasanya default), aplikasi akan langsung memproses kode tersebut tanpa perlu klik tombol Enter atau Cek manual.</li>
+                    </ol>
+                    
+                    <div class="alert alert-secondary">
+                        <i class="bi bi-lightbulb me-2"></i>
+                        <strong>Tip:</strong> Untuk pengguna Scanner USB, Anda <strong>TIDAK PERLU</strong> mengklik tombol "Mulai Kamera". Cukup pastikan kursor mouse aktif di kolom input (berkedip).
+                    </div>
                 </div>
             </div>
 
@@ -492,14 +528,45 @@
                         <p class="text-muted small mt-2">Gambar: Halaman Audit Logs</p>
                     </div>
 
+                    <h6 class="fw-semibold">Cara Akses Menu:</h6>
+                    <ol>
+                        <li>Klik nama/foto profil Anda di <strong>Pojok Kanan Atas</strong> (Topbar).</li>
+                        <li>Pilih menu <strong>"Audit Logs"</strong> dari dropdown yang muncul.</li>
+                    </ol>
+
                     <h6 class="fw-semibold">Aktivitas yang Dicatat:</h6>
-                    <ul>
-                        <li><span class="badge bg-primary">Create Transaction</span> - Pembuatan transaksi masuk/keluar.</li>
-                        <li><span class="badge bg-info text-dark">Transfer Stock</span> - Perpindahan stok antar gudang.</li>
-                        <li><span class="badge bg-warning text-dark">Sign Receipt</span> - Penandatanganan dokumen.</li>
-                        <li><span class="badge bg-secondary">Lock Receipt</span> - Penguncian dokumen.</li>
-                        <li><span class="badge bg-danger">Delete Transaction</span> - Penghapusan data transaksi.</li>
-                    </ul>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Aktivitas</th>
+                                    <th>Keterangan</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="badge bg-primary">Create Transaction</span></td>
+                                    <td>Mencatat siapa yang membuat transaksi, waktu, dan detail barang.</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge bg-info text-dark">Transfer Stock</span></td>
+                                    <td>Mencatat perpindahan stok antar gudang (Asal -> Tujuan).</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge bg-warning text-dark">Sign Receipt</span></td>
+                                    <td>Mencatat saat dokumen ditandatangani digital.</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge bg-secondary">Lock Receipt</span></td>
+                                    <td>Mencatat penguncian dokumen (finalisasi).</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge bg-danger">Delete Transaction</span></td>
+                                    <td>Mencatat penghapusan data transaksi (Hanya Admin).</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
 
                     <p class="text-muted small mt-2">
                         *Halaman ini hanya dapat diakses oleh Level <strong>Admin</strong> dan <strong>Owner</strong>.
@@ -535,7 +602,14 @@
                             </tr>
                             <tr>
                                 <td><span class="badge bg-primary">Staff</span></td>
-                                <td>Lihat barang, transaksi stok masuk/keluar, scan barcode</td>
+                                <td>
+                                    Akses terbatas sesuai <strong>Penempatan Gudang/Kota</strong>.
+                                    <ul>
+                                        <li>Hanya bisa melihat stok di gudang tempat mereka ditugaskan.</li>
+                                        <li>Memproses transaksi masuk/keluar hanya untuk gudang tersebut.</li>
+                                        <li>Tidak bisa melihat data gudang lain.</li>
+                                    </ul>
+                                </td>
                             </tr>
                             <tr>
                                 <td><span class="badge bg-warning text-dark">Owner</span></td>
@@ -543,8 +617,28 @@
                             </tr>
                         </tbody>
                     </table>
+                    <h6 class="fw-semibold mt-4">➕ Cara Menambah User Baru:</h6>
+                    <ol>
+                        <li>Masuk ke menu <strong>Users</strong> (hanya Admin).</li>
+                        <li>Klik tombol <strong>"Tambah User"</strong>.</li>
+                        <li>Isi <strong>Nama</strong>, <strong>Email</strong>, dan <strong>Password</strong>.</li>
+                        <li>Pilih <strong>Role</strong> (Admin, Staff, atau Owner).</li>
+                        <li>
+                            <strong>PENTING:</strong> Jika memilih Role <strong>Staff</strong>, kolom <strong>"Penempatan Gudang"</strong> akan muncul.
+                            <br>
+                            Pilih gudang/kota di mana staff tersebut akan bertugas. Staff <strong>TIDAK AKAN</strong> bisa mengakses data gudang lain selain yang dipilih di sini.
+                        </li>
+                        <li>Klik <strong>Simpan</strong>.</li>
+                    </ol>
+
+                    <div class="text-center my-3">
+                        <img src="{{ asset('images/manual/manual_add_user.png') }}" alt="Form Tambah User" class="img-fluid rounded shadow" style="max-width: 400px; border: 2px dashed #ccc;">
+                        <p class="text-muted small mt-2">Gambar 13: Form Tambah User (Pilih Gudang untuk Staff)</p>
+                    </div>
                 </div>
             </div>
+
+
 
             <!-- Dark Mode -->
             <div class="card mb-4" id="dark-mode">

@@ -50,12 +50,11 @@ class StockReportExport implements FromCollection, WithHeadings, WithMapping, Wi
     public function headings(): array
     {
         return [
+            'Kota',
             'Kode Barang',
             'Nama Barang',
             'Kategori',
             'Satuan',
-            'Gudang',
-            'Kota',
             'Stok',
             'Minimum Stok',
             'Status',
@@ -68,12 +67,11 @@ class StockReportExport implements FromCollection, WithHeadings, WithMapping, Wi
         $isLow = $warehouseItem->stock <= $warehouseItem->minimum_stock;
 
         return [
+            $warehouseItem->warehouse->city ?? '-',
             $warehouseItem->item->code,
             $warehouseItem->item->name,
             $warehouseItem->item->category->name,
             $warehouseItem->item->unit->abbreviation,
-            $warehouseItem->warehouse->name,
-            $warehouseItem->warehouse->city ?? '-',
             $warehouseItem->stock,
             $warehouseItem->minimum_stock,
             $isLow ? 'STOK MENIPIS' : 'Normal',

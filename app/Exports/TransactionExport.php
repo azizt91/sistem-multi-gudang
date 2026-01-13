@@ -48,7 +48,7 @@ class TransactionExport implements FromCollection, WithHeadings, WithMapping, Wi
     {
         return [
             'Tanggal & Waktu',
-            'Gudang',
+            'Kota',
             'Kode Barang',
             'Nama Barang',
             'Jenis Transaksi',
@@ -68,7 +68,7 @@ class TransactionExport implements FromCollection, WithHeadings, WithMapping, Wi
 
         return [
             $transaction->transaction_date->format('d/m/Y H:i'),
-            $transaction->stockHeader->warehouse->name ?? '-',
+            $transaction->stockHeader->warehouse->city ?? '-',
             $transaction->item->code,
             $transaction->item->name,
             $transaction->type === 'in' ? 'Stok Masuk' : 'Stok Keluar',

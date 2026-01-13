@@ -553,7 +553,7 @@
             @endphp
             <div class="d-flex align-items-center">
                 @if($globalProfile && $globalProfile->logo_url)
-                    <img src="{{ $globalProfile->logo_url }}" alt="Logo" style="height: 30px; margin-right: 10px;" class="rounded">
+                    <img src="{{ $globalProfile->logo_url }}" alt="Logo" style="height: 40px; margin-right: 10px;" class="rounded">
                     <div>
                         <h4 style="font-size: 0.75rem; margin: 0; line-height: 1.2; word-break: break-word;">{{ $globalProfile->company_name }}</h4>
                         <small style="font-size: 0.65rem;">Warehouse Management</small>

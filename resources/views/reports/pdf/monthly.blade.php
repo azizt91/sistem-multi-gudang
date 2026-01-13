@@ -117,7 +117,7 @@
             <tr>
                 <th class="text-center" width="3%">No</th>
                 <th width="10%">Tanggal & Waktu</th>
-                <th width="10%">Gudang</th>
+                <th width="10%">Kota</th>
                 <th width="8%">Kode</th>
                 <th>Nama Barang</th>
                 <th class="text-center" width="8%">Jenis</th>
@@ -133,7 +133,7 @@
             <tr>
                 <td class="text-center">{{ $index + 1 }}</td>
                 <td>{{ $transaction->transaction_date->format('d/m/Y H:i') }}</td>
-                <td>{{ $transaction->stockHeader->warehouse->name ?? '-' }}</td>
+                <td>{{ $transaction->stockHeader->warehouse->city ?? '-' }}</td>
                 <td>{{ $transaction->item->code }}</td>
                 <td>{{ \Illuminate\Support\Str::limit($transaction->item->name, 20) }}</td>
                 <td class="text-center">

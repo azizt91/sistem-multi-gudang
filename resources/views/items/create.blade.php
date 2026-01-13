@@ -79,7 +79,7 @@
                         <div class="col-md-6">
                             <label for="code" class="form-label">Kode Barang <span class="text-danger">*</span></label>
                             <div class="input-group">
-                                <input type="text" class="form-control @error('code') is-invalid @enderror" id="code" name="code" value="{{ old('code', $suggestedCode) }}" required>
+                                <input type="text" class="form-control @error('code') is-invalid @enderror" id="code" name="code" value="{{ old('code') }}" required>
                                 <span class="input-group-text" id="codeStatus"></span>
                             </div>
                             <small class="text-muted">Kode ini akan digunakan untuk generate barcode</small>

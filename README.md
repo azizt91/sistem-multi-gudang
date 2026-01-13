@@ -53,8 +53,8 @@ Sistem Manajemen Gudang berbasis web yang dibangun dengan Laravel 12, Bootstrap 
 
 ### 1. Clone Repository
 ```bash
-git clone https://github.com/username/warehouse-management-system.git
-cd warehouse-management-system
+git clone https://github.com/azizt91/sistem-multi-gudang.git
+cd sistem-multi-gudang
 ```
 
 ### 2. Install Dependencies

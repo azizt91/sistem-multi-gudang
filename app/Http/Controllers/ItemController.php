@@ -135,12 +135,22 @@ class ItemController extends Controller
             $item->load(['warehouseItems' => function($q) {
                 $q->where('warehouse_id', auth()->user()->warehouse_id);
             }]);
+            $contextWarehouse = auth()->user()->warehouse;
+            $currentStock = $item->warehouseItems->first()->stock ?? 0;
         } else {
-             // For Admin, maybe we want to show all warehouse items breakdown
-             $item->load('warehouseItems.warehouse');
+             // For Admin, check if context is passed
+             $warehouseId = request()->query('warehouse_id');
+             if ($warehouseId) {
+                 $contextWarehouse = \App\Models\Warehouse::find($warehouseId);
+                 $currentStock = $item->getStockInWarehouse($warehouseId);
+             } else {
+                 $contextWarehouse = null;
+                 $currentStock = $item->stock; // Global Sum
+                 $item->load('warehouseItems.warehouse');
+             }
         }
 
-        return view('items.show', compact('item'));
+        return view('items.show', compact('item', 'contextWarehouse', 'currentStock'));
     }
 
     public function edit(Request $request, Item $item)
@@ -158,26 +168,19 @@ class ItemController extends Controller
             
             // Override item properties for the view
             if ($wi) {
-                // If local min stock is set (>0), use it. If 0, it currently falls back to global in logic, 
-                // but for EDITING, we want to show what is effective or allow setting it.
-                // If it is 0, we show 0? Or show global?
-                // User wants to SEE current setting.
-                // If our logic is "0 means inherit", we should ideally show the inherited value but maybe indicate it?
-                // For simplicity: Show the value from WarehouseItem if it exists.
-                // If user sees 0, and wants 3, they type 3.
-                // However, previous fix assumed "If 0, use Global". 
-                // So if we show 0, user might think it's 0. 
-                // Let's pre-fill with the EFFECTIVE value, but if they save, it becomes explicit.
-                
+                // Use existing warehouse min stock if set, otherwise global
                 $effectiveMin = ($wi->minimum_stock > 0) ? $wi->minimum_stock : $item->minimum_stock;
                 $item->minimum_stock = $effectiveMin;
+                $currentStock = $wi->stock;
             } else {
-                // No record yet, so it effectively uses global
-                // We keep $item->minimum_stock as is (Global)
+                $currentStock = 0; // Item exists globally but not in this warehouse yet
             }
+        } else {
+             // No warehouse context, show global total
+             $currentStock = $item->stock;
         }
 
-        return view('items.edit', compact('item', 'categories', 'units', 'contextWarehouse'));
+        return view('items.edit', compact('item', 'categories', 'units', 'contextWarehouse', 'currentStock'));
     }
 
     public function update(Request $request, Item $item)

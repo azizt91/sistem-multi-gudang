@@ -28,7 +28,7 @@
                         </td>
                         <td><code>{{ $item->code }}</code></td>
                         <td>
-                            <a href="{{ route('items.show', $item) }}" class="text-decoration-none fw-semibold">
+                            <a href="{{ route('items.show', ['item' => $item, 'warehouse_id' => request('warehouse_id')]) }}" class="text-decoration-none fw-semibold">
                                 {{ $item->name }}
                             </a>
                         </td>
@@ -63,7 +63,7 @@
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end">
                                     <li>
-                                        <a class="dropdown-item" href="{{ route('items.show', $item) }}">
+                                        <a class="dropdown-item" href="{{ route('items.show', ['item' => $item, 'warehouse_id' => request('warehouse_id')]) }}">
                                             <i class="bi bi-eye text-info me-2"></i> Lihat Detail
                                         </a>
                                     </li>

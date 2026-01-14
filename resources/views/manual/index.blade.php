@@ -53,7 +53,7 @@
                     <p>Untuk menggunakan sistem, Anda perlu login terlebih dahulu dengan akun yang sudah didaftarkan oleh Administrator.</p>
                     
                     <div class="text-center mb-3">
-                        <img src="{{ asset('images/manual/login-page.png') }}" alt="Halaman Login" class="img-fluid rounded shadow" style="max-width: 500px;">
+                        <img src="{{ asset('images/manual/login-page.png') }}" alt="Halaman Login" class="img-fluid rounded shadow" style="width: 100%; max-width: 600px;">
                         <p class="text-muted small mt-2">Gambar 1: Halaman Login</p>
                     </div>
 
@@ -79,7 +79,7 @@
                     <p>Dashboard adalah halaman utama yang menyajikan ringkasan visual aktivitas gudang secara realtime.</p>
                     
                     <div class="text-center mb-3">
-                        <img src="{{ asset('images/manual/dashboard.png') }}" alt="Dashboard" class="img-fluid rounded shadow">
+                        <img src="{{ asset('images/manual/dashboard.png') }}" alt="Dashboard" class="img-fluid rounded shadow" style="width: 100%; max-width: 800px;">
                         <p class="text-muted small mt-2">Gambar 2: Tampilan Dashboard WMS</p>
                     </div>
 
@@ -156,7 +156,7 @@
                     </div>
 
                     <div class="text-center mb-3">
-                        <img src="{{ asset('images/manual/company_profile.png') }}" alt="Profil Perusahaan" class="img-fluid rounded shadow" style="max-width: 400px; border: 2px dashed #ccc;">
+                        <img src="{{ asset('images/manual/company_profile.png') }}" alt="Profil Perusahaan" class="img-fluid rounded shadow" style="width: 100%; max-width: 600px; border: 2px dashed #ccc;">
                         <p class="text-muted small mt-2">Gambar 14: Halaman Edit Profile Perusahaan</p>
                     </div>
 
@@ -183,15 +183,16 @@
                     <p>Sistem ini mendukung pengelolaan banyak gudang (Multi-Warehouse). Anda dapat mengatur gudang cabang dan memantau stok di setiap lokasi.</p>
                     
                     <div class="text-center mb-3">
-                        <img src="{{ asset('images/manual/manual_warehouse_list.png') }}" alt="Daftar Gudang" class="img-fluid rounded shadow">
+                        <img src="{{ asset('images/manual/manual_warehouse_list.png') }}" alt="Daftar Gudang" class="img-fluid rounded shadow" style="width: 100%; max-width: 800px;">
                         <p class="text-muted small mt-2">Gambar: Daftar Gudang</p>
                     </div>
 
                     <h6 class="fw-semibold">Fitur Gudang:</h6>
                     <ul>
-                        <li><strong>Tambah Gudang</strong>: Daftarkan lokasi gudang baru beserta alamatnya.</li>
-                        <li><strong>Akses User</strong>: Setiap Staff dapat ditugaskan ke satu gudang spesifik.</li>
-                        <li><strong>Isolasi Stok</strong>: Transaksi dan stok admin/staff terpisah sesuai gudang masing-masing.</li>
+                        <li><strong>Tambah Gudang</strong>: Daftarkan lokasi gudang baru beserta <strong>Nama PIC</strong> dan <strong>No. Telepon</strong>.</li>
+                        <li><strong>Informasi Fasilitas</strong>: Lihat alamat lengkap dan kontak yang bisa dihubungi untuk setiap gudang.</li>
+                        <li><strong>Akses User</strong>: Setiap Staff ditugaskan ke satu gudang spesifik.</li>
+                        <li><strong>Isolasi Stok</strong>: Transaksi dan stok dikelola terpisah per gudang.</li>
                     </ul>
 
                     <div class="alert alert-info">
@@ -211,7 +212,7 @@
                     <p>Lihat semua barang yang tersimpan di gudang. Gunakan filter untuk mencari barang spesifik.</p>
                     
                     <div class="text-center mb-3">
-                        <img src="{{ asset('images/manual/items-list.png') }}" alt="Daftar Barang" class="img-fluid rounded shadow">
+                        <img src="{{ asset('images/manual/items-list.png') }}" alt="Daftar Barang" class="img-fluid rounded shadow" style="width: 100%; max-width: 800px;">
                         <p class="text-muted small mt-2">Gambar 3: Daftar Barang dengan Filter</p>
                     </div>
 
@@ -219,7 +220,7 @@
                     <p>Klik tombol <strong>"+ Tambah Barang"</strong> untuk menambah barang baru.</p>
                     
                     <div class="text-center mb-3">
-                        <img src="{{ asset('images/manual/add-item.png') }}" alt="Tambah Barang" class="img-fluid rounded shadow" style="max-width: 600px;">
+                        <img src="{{ asset('images/manual/add-item.png') }}" alt="Tambah Barang" class="img-fluid rounded shadow" style="width: 100%; max-width: 600px;">
                         <p class="text-muted small mt-2">Gambar 4: Form Tambah Barang dengan Scan Barcode</p>
                     </div>
 
@@ -252,7 +253,7 @@
                     <p>Klik nama barang untuk melihat detail lengkap termasuk barcode dan riwayat transaksi.</p>
                     
                     <div class="text-center mb-3">
-                        <img src="{{ asset('images/manual/item-detail.png') }}" alt="Detail Barang" class="img-fluid rounded shadow" style="max-width: 600px;">
+                        <img src="{{ asset('images/manual/item-detail.png') }}" alt="Detail Barang" class="img-fluid rounded shadow" style="width: 100%; max-width: 600px;">
                         <p class="text-muted small mt-2">Gambar 5: Detail Barang dengan Barcode</p>
                     </div>
                 </div>
@@ -275,7 +276,7 @@
                             <p>Catat barang yang masuk ke gudang (pembelian, retur, dll) dalam satu dokumen transaksi.</p>
                             
                             <div class="text-center mb-3">
-                                <img src="{{ asset('images/manual/stock-in.png') }}" alt="Stok Masuk" class="img-fluid rounded shadow">
+                                <img src="{{ asset('images/manual/stock-in.png') }}" alt="Stok Masuk" class="img-fluid rounded shadow" style="width: 100%; max-width: 600px;">
                                 <p class="text-muted small mt-2">Gambar 6: Form Stok Masuk Multi-Item</p>
                             </div>
                         </div>
@@ -284,7 +285,7 @@
                             <p>Catat barang yang keluar dari gudang (penjualan, rusak, dll) dalam satu dokumen transaksi.</p>
                             
                             <div class="text-center mb-3">
-                                <img src="{{ asset('images/manual/stock-out.png') }}" alt="Stok Keluar" class="img-fluid rounded shadow">
+                                <img src="{{ asset('images/manual/stock-out.png') }}" alt="Stok Keluar" class="img-fluid rounded shadow" style="width: 100%; max-width: 600px;">
                                 <p class="text-muted small mt-2">Gambar 7: Form Stok Keluar Multi-Item</p>
                             </div>
                         </div>
@@ -310,7 +311,7 @@
                     <p>Lihat semua dokumen transaksi dengan informasi total item, total quantity, dan status tanda terima.</p>
                     
                     <div class="text-center mb-3">
-                        <img src="{{ asset('images/manual/transaction-history.png') }}" alt="Riwayat Transaksi" class="img-fluid rounded shadow">
+                        <img src="{{ asset('images/manual/transaction-history.png') }}" alt="Riwayat Transaksi" class="img-fluid rounded shadow" style="width: 100%; max-width: 800px;">
                         <p class="text-muted small mt-2">Gambar 8: Daftar Dokumen Transaksi</p>
                     </div>
                 </div>
@@ -325,7 +326,7 @@
                     <p>Pindahkan stok barang dari satu gudang ke gudang lain dengan aman dan tercatat.</p>
 
                     <div class="text-center mb-3">
-                        <img src="{{ asset('images/manual/manual_stock_transfer.png') }}" alt="Transfer Stok" class="img-fluid rounded shadow">
+                        <img src="{{ asset('images/manual/manual_stock_transfer.png') }}" alt="Transfer Stok" class="img-fluid rounded shadow" style="width: 100%; max-width: 600px;">
                         <p class="text-muted small mt-2">Gambar: Form Transfer Stok</p>
                     </div>
 
@@ -354,7 +355,7 @@
                     <p>Membuat bukti serah terima barang secara digital tanpa kertas.</p>
                     
                     <div class="text-center mb-4">
-                        <img src="{{ asset('images/manual/receipt-form.png') }}" alt="Form Tanda Terima" class="img-fluid rounded shadow" style="max-width: 700px;">
+                        <img src="{{ asset('images/manual/receipt-form.png') }}" alt="Form Tanda Terima" class="img-fluid rounded shadow" style="width: 100%; max-width: 600px;">
                         <p class="text-muted small mt-2">Gambar 9: Form Input Tanda Tangan Digital</p>
                     </div>
 
@@ -400,7 +401,7 @@
                     <p>Fitur scan barcode telah diperbarui dengan sistem <strong>Keranjang (Cart)</strong>, memungkinkan Anda men-scan banyak barang sekaligus sebelum disimpan.</p>
                     
                     <div class="text-center mb-3">
-                        <img src="{{ asset('images/manual/barcode-scanner.png') }}" alt="Barcode Scanner Multi-Item" class="img-fluid rounded shadow" style="width: 100%; max-width: 500px;">
+                        <img src="{{ asset('images/manual/barcode-scanner.png') }}" alt="Barcode Scanner Multi-Item" class="img-fluid rounded shadow" style="width: 100%; max-width: 600px;">
                         <p class="text-muted small mt-2">Gambar 9: Halaman Scan Barcode dengan Sistem Keranjang</p>
                     </div>
 
@@ -449,7 +450,7 @@
                         <li>
                             Klik kolom input teks di mana Anda ingin memasukkan kode barang (Contoh: "Ketik kode barang..." di menu Scanner, atau kolom Kode Barang di Tambah Barang).
                             <div class="text-center my-3">
-                                <img src="{{ asset('images/manual/manual_usb_scanner_1.png') }}" alt="Ilustrasi Input Focus" class="img-fluid rounded shadow" style="max-width: 400px; border: 2px dashed #ccc;">
+                                <img src="{{ asset('images/manual/manual_usb_scanner_1.png') }}" alt="Ilustrasi Input Focus" class="img-fluid rounded shadow" style="width: 100%; max-width: 400px; border: 2px dashed #ccc;">
                                 <p class="text-muted small mt-2">Gambar 11: Pastikan kursor aktif di kolom input</p>
                             </div>
                         </li>
@@ -506,7 +507,7 @@
                     </div>
 
                     <div class="text-center mb-3">
-                        <img src="{{ asset('images/manual/reports.png') }}" alt="Halaman Laporan" class="img-fluid rounded shadow">
+                        <img src="{{ asset('images/manual/reports.png') }}" alt="Halaman Laporan" class="img-fluid rounded shadow" style="width: 100%; max-width: 800px;">
                         <p class="text-muted small mt-2">Gambar 11: Menu Laporan</p>
                     </div>
 
@@ -528,7 +529,7 @@
                     <p>Untuk menjaga keamanan dan akuntabilitas, sistem mencatat setiap aktivitas penting yang dilakukan oleh pengguna.</p>
 
                     <div class="text-center mb-3">
-                        <img src="{{ asset('images/manual/manual_audit_log.png') }}" alt="Audit Log" class="img-fluid rounded shadow">
+                        <img src="{{ asset('images/manual/manual_audit_log.png') }}" alt="Audit Log" class="img-fluid rounded shadow" style="width: 100%; max-width: 800px;">
                         <p class="text-muted small mt-2">Gambar: Halaman Audit Logs</p>
                     </div>
 
@@ -587,7 +588,7 @@
                     <p>Hanya Admin yang dapat mengelola pengguna sistem.</p>
                     
                     <div class="text-center mb-3">
-                        <img src="{{ asset('images/manual/users-list.png') }}" alt="Daftar User" class="img-fluid rounded shadow">
+                        <img src="{{ asset('images/manual/users-list.png') }}" alt="Daftar User" class="img-fluid rounded shadow" style="width: 100%; max-width: 800px;">
                         <p class="text-muted small mt-2">Gambar 12: Daftar User</p>
                     </div>
 
@@ -655,7 +656,7 @@
                     </ol>
 
                     <div class="text-center my-3">
-                        <img src="{{ asset('images/manual/manual_add_user.png') }}" alt="Form Tambah User" class="img-fluid rounded shadow" style="max-width: 400px; border: 2px dashed #ccc;">
+                        <img src="{{ asset('images/manual/manual_add_user.png') }}" alt="Form Tambah User" class="img-fluid rounded shadow" style="width: 100%; max-width: 600px; border: 2px dashed #ccc;">
                         <p class="text-muted small mt-2">Gambar 13: Form Tambah User (Pilih Gudang untuk Staff)</p>
                     </div>
                 </div>
@@ -673,11 +674,11 @@
                     
                     <div class="row">
                         <div class="col-md-6 text-center mb-3">
-                            <img src="{{ asset('images/manual/light-mode.png') }}" alt="Light Mode" class="img-fluid rounded shadow">
+                            <img src="{{ asset('images/manual/light-mode.png') }}" alt="Light Mode" class="img-fluid rounded shadow" style="width: 100%; max-width: 600px;">
                             <p class="text-muted small mt-2">Gambar 13: Light Mode</p>
                         </div>
                         <div class="col-md-6 text-center mb-3">
-                            <img src="{{ asset('images/manual/dark-mode.png') }}" alt="Dark Mode" class="img-fluid rounded shadow">
+                            <img src="{{ asset('images/manual/dark-mode.png') }}" alt="Dark Mode" class="img-fluid rounded shadow" style="width: 100%; max-width: 600px;">
                             <p class="text-muted small mt-2">Gambar 14: Dark Mode</p>
                         </div>
                     </div>

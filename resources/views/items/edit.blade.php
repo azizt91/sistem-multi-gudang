@@ -75,7 +75,7 @@
 
                         <div class="col-md-6">
                             <label class="form-label">Stok Saat Ini @if(isset($contextWarehouse)) <small class="text-muted">({{ $contextWarehouse->name }})</small> @endif</label>
-                            <input type="text" class="form-control bg-light" value="{{ $item->stock }} {{ $item->unit->abbreviation }}" readonly>
+                            <input type="text" class="form-control bg-light" value="{{ $currentStock }} {{ $item->unit->abbreviation }}" readonly>
                             <small class="text-muted">Stok hanya bisa diubah melalui transaksi</small>
                         </div>
 

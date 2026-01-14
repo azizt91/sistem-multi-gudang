@@ -34,6 +34,8 @@
                 <thead>
                     <tr>
                         <th>Nama Gudang</th>
+                        <th>PIC</th>
+                        <th>No. Telp</th>
                         <th>Kota / Regional</th>
                         <th>Alamat</th>
                         <th class="text-center">Total Barang</th>
@@ -45,8 +47,10 @@
                     @forelse($warehouses as $warehouse)
                     <tr>
                         <td class="fw-semibold">{{ $warehouse->name }}</td>
+                        <td>{{ $warehouse->pic ?? '-' }}</td>
+                        <td>{{ $warehouse->phone ?? '-' }}</td>
                         <td>{{ $warehouse->city }}</td>
-                        <td>{{ Str::limit($warehouse->address ?? '-', 50) }}</td>
+                        <td>{{ $warehouse->address ?? '-' }}</td>
                         <td class="text-center">
                             <span class="badge bg-primary">{{ $warehouse->warehouse_items_count }}</span>
                         </td>
@@ -85,7 +89,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" class="text-center py-5">
+                        <td colspan="8" class="text-center py-5">
                             <i class="bi bi-building fs-1 text-muted"></i>
                             <p class="text-muted mt-2 mb-0">Belum ada data gudang</p>
                         </td>

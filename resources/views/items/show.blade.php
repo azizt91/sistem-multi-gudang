@@ -33,9 +33,9 @@
 
                 <div class="row text-start">
                     <div class="col-6 mb-3">
-                        <small class="text-muted d-block">Stok Saat Ini</small>
+                        <small class="text-muted d-block">Stok Saat Ini @if(isset($contextWarehouse)) <small>({{ $contextWarehouse->name }})</small> @endif</small>
                         <span class="fw-bold fs-4 {{ $item->isLowStock() ? 'text-danger' : 'text-success' }}">
-                            {{ $item->stock }}
+                            {{ $currentStock }}
                         </span>
                         <span class="text-muted">{{ $item->unit->abbreviation }}</span>
                     </div>

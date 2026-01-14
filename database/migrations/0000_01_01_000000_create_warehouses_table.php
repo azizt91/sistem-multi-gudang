@@ -15,6 +15,8 @@ return new class extends Migration
             $table->string('city')->nullable(); // Added city
             $table->text('address')->nullable();
             $table->text('description')->nullable(); // Added description
+            $table->string('pic')->nullable(); // Added pic
+            $table->string('phone')->nullable(); // Added phone
             $table->boolean('is_active')->default(true); // Added is_active
             $table->timestamps();
         });

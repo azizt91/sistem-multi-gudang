@@ -24,6 +24,8 @@ class WarehouseController extends Controller
             'name' => 'required|string|max:255',
             'city' => 'required|string|max:255',
             'address' => 'nullable|string',
+            'pic' => 'nullable|string|max:255',
+            'phone' => 'nullable|string|max:20',
         ]);
 
         Warehouse::create($validated);
@@ -42,6 +44,8 @@ class WarehouseController extends Controller
             'name' => 'required|string|max:255',
             'city' => 'required|string|max:255',
             'address' => 'nullable|string',
+            'pic' => 'nullable|string|max:255',
+            'phone' => 'nullable|string|max:20',
         ]);
 
         $warehouse->update($validated);

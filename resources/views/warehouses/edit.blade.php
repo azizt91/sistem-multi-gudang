@@ -30,6 +30,23 @@
                     @enderror
                 </div>
 
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="pic" class="form-label">Nama PIC</label>
+                        <input type="text" class="form-control @error('pic') is-invalid @enderror" id="pic" name="pic" value="{{ old('pic', $warehouse->pic) }}">
+                        @error('pic')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="phone" class="form-label">No. Telp / HP</label>
+                        <input type="text" class="form-control @error('phone') is-invalid @enderror" id="phone" name="phone" value="{{ old('phone', $warehouse->phone) }}">
+                        @error('phone')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+
                 <div class="mb-3">
                     <label for="address" class="form-label">Alamat Lengkap</label>
                     <textarea class="form-control @error('address') is-invalid @enderror" id="address" name="address" rows="3">{{ old('address', $warehouse->address) }}</textarea>

@@ -9,7 +9,16 @@ class Warehouse extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['code', 'name', 'city', 'address', 'description', 'is_active'];
+    protected $fillable = [
+        'code',
+        'name',
+        'city',
+        'address',
+        'description',
+        'is_active',
+        'pic',
+        'phone',
+    ];
 
     protected static function booted()
     {

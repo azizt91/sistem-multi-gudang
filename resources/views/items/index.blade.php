@@ -48,6 +48,7 @@
                     <input type="text" class="form-control" name="search" placeholder="Cari kode atau nama barang..." value="{{ request('search') }}">
                 </div>
             </div>
+            @if(auth()->user()->isAdmin() || auth()->user()->isOwner())
             <div class="col-md-3">
                 <select name="warehouse_id" class="form-select">
                     <option value="">Semua Gudang (Total Stok)</option>
@@ -58,6 +59,7 @@
                     @endforeach
                 </select>
             </div>
+            @endif
             <div class="col-md-3">
                 <select name="category_id" class="form-select">
                     <option value="">Semua Kategori</option>

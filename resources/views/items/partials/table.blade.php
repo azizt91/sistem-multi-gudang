@@ -70,7 +70,7 @@
                                     @if(auth()->user()->isAdmin())
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
-                                        <a class="dropdown-item" href="{{ route('items.edit', $item) }}">
+                                        <a class="dropdown-item" href="{{ route('items.edit', ['item' => $item, 'warehouse_id' => request('warehouse_id')]) }}">
                                             <i class="bi bi-pencil text-primary me-2"></i> Edit
                                         </a>
                                     </li>

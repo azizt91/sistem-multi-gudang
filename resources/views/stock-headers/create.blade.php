@@ -213,8 +213,15 @@
 </template>
 
 <!-- Items Data for JS -->
+@endsection
+
+@push('scripts')
 <script>
-    const itemsData = [
+    // Initial Items Data from Controller
+    // Note: If Admin loads page without warehouse selected (first load), this might be empty or full list.
+    // Controller logic: Staff -> filtered, Admin -> filtered if warehouse_id passed, else all?
+    // Let's rely on JS fetching for Admin changes.
+    let itemsData = [
         @foreach($items as $item)
         {
             id: {{ $item->id }},
@@ -226,171 +233,219 @@
         @endforeach
     ];
     const isStockOut = {{ $type === 'out' ? 'true' : 'false' }};
-</script>
-@endsection
 
-@push('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const container = document.getElementById('itemsContainer');
-    const template = document.getElementById('itemRowTemplate');
-    const addBtn = document.getElementById('addItemBtn');
-    const totalItemsEl = document.getElementById('totalItems');
-    const totalQuantityEl = document.getElementById('totalQuantity');
-    let itemIndex = 0;
+    document.addEventListener('DOMContentLoaded', function() {
+        const container = document.getElementById('itemsContainer');
+        const template = document.getElementById('itemRowTemplate');
+        const addBtn = document.getElementById('addItemBtn');
+        const totalItemsEl = document.getElementById('totalItems');
+        const totalQuantityEl = document.getElementById('totalQuantity');
+        const warehouseSelect = document.getElementById('warehouse_id');
+        let itemIndex = 0;
 
-    // Close dropdowns when clicking outside
-    document.addEventListener('click', function(e) {
-        if (!e.target.closest('.searchable-select-container')) {
-            document.querySelectorAll('.searchable-select-dropdown.show').forEach(d => d.classList.remove('show'));
+        // Dynamic Item Loading for Admin
+        async function handleWarehouseChange() {
+            const warehouseId = warehouseSelect.value;
+            if (!warehouseId) return;
+
+             // Only fetch if admin (Staff inputs are typically hidden/readonly or controlled)
+             // Check if select is not disabled
+             if (!warehouseSelect.disabled && warehouseSelect.tagName === 'SELECT') {
+                 try {
+                     const response = await fetch(`{{ route('items.list') }}?warehouse_id=${warehouseId}`);
+                     const data = await response.json();
+                     
+                     itemsData = data;
+                     
+                     // Clear rows
+                     container.innerHTML = '';
+                     itemIndex = 0;
+                     addItemRow(); 
+
+                 } catch (error) {
+                     console.error('Error fetching items:', error);
+                     alert('Gagal memuat barang.');
+                 }
+             }
         }
-    });
 
-    function initSearchableSelect(row, preSelectedId = null) {
-        const container = row.querySelector('.searchable-select-container');
-        const hiddenInput = container.querySelector('.item-id-input');
-        const displayInput = container.querySelector('.searchable-select-input');
-        const dropdown = container.querySelector('.searchable-select-dropdown');
-        const searchInput = container.querySelector('.search-input');
-        const optionsContainer = container.querySelector('.searchable-select-options');
-        const unitLabel = row.querySelector('.unit-label');
-        const stockInfo = row.querySelector('.stock-info');
-        const quantityInput = row.querySelector('.quantity-input');
+        if (warehouseSelect) {
+            warehouseSelect.addEventListener('change', handleWarehouseChange);
+        }
 
-        let selectedItem = null;
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.searchable-select-container')) {
+                document.querySelectorAll('.searchable-select-dropdown.show').forEach(d => d.classList.remove('show'));
+            }
+        });
 
-        function renderOptions(filter = '') {
-            const filterLower = filter.toLowerCase();
-            let html = '';
-            let count = 0;
+        function initSearchableSelect(row, preSelectedId = null) {
+            const container = row.querySelector('.searchable-select-container');
+            const hiddenInput = container.querySelector('.item-id-input');
+            const displayInput = container.querySelector('.searchable-select-input');
+            const dropdown = container.querySelector('.searchable-select-dropdown');
+            const searchInput = container.querySelector('.search-input');
+            const optionsContainer = container.querySelector('.searchable-select-options');
+            const unitLabel = row.querySelector('.unit-label');
+            const stockInfo = row.querySelector('.stock-info');
+            const quantityInput = row.querySelector('.quantity-input');
 
-            itemsData.forEach(item => {
-                const searchText = (item.code + ' ' + item.name).toLowerCase();
-                if (filterLower === '' || searchText.includes(filterLower)) {
-                    const isSelected = selectedItem && selectedItem.id === item.id;
-                    html += `
-                        <div class="searchable-select-option ${isSelected ? 'selected' : ''}" data-id="${item.id}">
-                            <strong>${item.code}</strong> - ${item.name}
-                            <small>Stok: ${item.stock} ${item.unit}</small>
-                        </div>
-                    `;
-                    count++;
+            let selectedItem = null;
+
+            function renderOptions(filter = '') {
+                const filterLower = filter.toLowerCase();
+                let html = '';
+                let count = 0;
+
+                itemsData.forEach(item => {
+                    const searchText = (item.code + ' ' + item.name).toLowerCase();
+                    
+                    // Logic:
+                    // 1. Filter by search text
+                    // 2. If Stock Out, ensure stock > 0 (optional but good UX)
+                    let isValid = true;
+                    if (filterLower !== '' && !searchText.includes(filterLower)) isValid = false;
+                    if (isStockOut && item.stock <= 0) isValid = false;
+
+                    if (isValid) {
+                        const isSelected = selectedItem && selectedItem.id === item.id;
+                        html += `
+                            <div class="searchable-select-option ${isSelected ? 'selected' : ''}" data-id="${item.id}">
+                                <strong>${item.code}</strong> - ${item.name}
+                                <small>Stok: ${item.stock} ${item.unit}</small>
+                            </div>
+                        `;
+                        count++;
+                    }
+                });
+
+                if (count === 0) {
+                    html = '<div class="searchable-select-empty">Tidak ada barang ditemukan ' + (isStockOut ? '(Stok > 0)' : '') + '</div>';
+                }
+
+                optionsContainer.innerHTML = html;
+
+                // Attach click events to options
+                optionsContainer.querySelectorAll('.searchable-select-option').forEach(option => {
+                    option.addEventListener('click', function() {
+                        const id = parseInt(this.dataset.id);
+                        const item = itemsData.find(i => i.id === id);
+                        if (item) {
+                            selectItem(item);
+                        }
+                    });
+                });
+            }
+
+            function selectItem(item) {
+                selectedItem = item;
+                hiddenInput.value = item.id;
+                displayInput.value = item.code + ' - ' + item.name;
+                unitLabel.textContent = item.unit;
+                
+                if (isStockOut && stockInfo) {
+                    stockInfo.textContent = 'Maks: ' + item.stock;
+                    quantityInput.max = item.stock;
+                }
+
+                dropdown.classList.remove('show');
+                updateTotals();
+            }
+
+            // Open dropdown
+            displayInput.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                // Close other dropdowns
+                document.querySelectorAll('.searchable-select-dropdown.show').forEach(d => {
+                    if (d !== dropdown) d.classList.remove('show');
+                });
+
+                // Validation: Warehouse must be selected (if selectable)
+                if (warehouseSelect && warehouseSelect.value === '' && !warehouseSelect.disabled) {
+                    alert('Pilih Gudang terlebih dahulu');
+                    return;
+                }
+
+                dropdown.classList.toggle('show');
+                if (dropdown.classList.contains('show')) {
+                    searchInput.value = '';
+                    renderOptions();
+                    searchInput.focus();
                 }
             });
 
-            if (count === 0) {
-                html = '<div class="searchable-select-empty">Tidak ada barang ditemukan</div>';
-            }
-
-            optionsContainer.innerHTML = html;
-
-            // Attach click events to options
-            optionsContainer.querySelectorAll('.searchable-select-option').forEach(option => {
-                option.addEventListener('click', function() {
-                    const id = parseInt(this.dataset.id);
-                    const item = itemsData.find(i => i.id === id);
-                    if (item) {
-                        selectItem(item);
-                    }
-                });
+            // Search
+            searchInput.addEventListener('input', function() {
+                renderOptions(this.value);
             });
+
+            // Prevent dropdown close on search input click
+            searchInput.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+
+            // Initial render
+            renderOptions();
+
+            // Check if pre-selected
+            if (preSelectedId) {
+                const item = itemsData.find(i => i.id === preSelectedId);
+                if (item) {
+                    selectItem(item);
+                }
+            }
         }
 
-        function selectItem(item) {
-            selectedItem = item;
-            hiddenInput.value = item.id;
-            displayInput.value = item.code + ' - ' + item.name;
-            unitLabel.textContent = item.unit;
+        function addItemRow(preSelectedId = null) {
+            const html = template.innerHTML.replace(/__INDEX__/g, itemIndex);
+            const div = document.createElement('div');
+            div.innerHTML = html;
+            const row = div.firstElementChild;
+            container.appendChild(row);
             
-            if (isStockOut && stockInfo) {
-                stockInfo.textContent = 'Maks: ' + item.stock;
-                quantityInput.max = item.stock;
-            }
+            // Initialize searchable select
+            initSearchableSelect(row, preSelectedId);
 
-            dropdown.classList.remove('show');
-            updateTotals();
-        }
+            // Attach events
+            const quantityInput = row.querySelector('.quantity-input');
+            const removeBtn = row.querySelector('.remove-item-btn');
 
-        // Open dropdown
-        displayInput.addEventListener('click', function(e) {
-            e.stopPropagation();
-            // Close other dropdowns
-            document.querySelectorAll('.searchable-select-dropdown.show').forEach(d => {
-                if (d !== dropdown) d.classList.remove('show');
+            quantityInput.addEventListener('input', updateTotals);
+
+            removeBtn.addEventListener('click', function() {
+                row.remove();
+                updateTotals();
             });
-            dropdown.classList.toggle('show');
-            if (dropdown.classList.contains('show')) {
-                searchInput.value = '';
-                renderOptions();
-                searchInput.focus();
-            }
-        });
 
-        // Search
-        searchInput.addEventListener('input', function() {
-            renderOptions(this.value);
-        });
-
-        // Prevent dropdown close on search input click
-        searchInput.addEventListener('click', function(e) {
-            e.stopPropagation();
-        });
-
-        // Initial render
-        renderOptions();
-
-        // Check if pre-selected
-        if (preSelectedId) {
-            const item = itemsData.find(i => i.id === preSelectedId);
-            if (item) {
-                selectItem(item);
-            }
-        }
-    }
-
-    function addItemRow(preSelectedId = null) {
-        const html = template.innerHTML.replace(/__INDEX__/g, itemIndex);
-        const div = document.createElement('div');
-        div.innerHTML = html;
-        const row = div.firstElementChild;
-        container.appendChild(row);
-        
-        // Initialize searchable select
-        initSearchableSelect(row, preSelectedId);
-
-        // Attach events
-        const quantityInput = row.querySelector('.quantity-input');
-        const removeBtn = row.querySelector('.remove-item-btn');
-
-        quantityInput.addEventListener('input', updateTotals);
-
-        removeBtn.addEventListener('click', function() {
-            row.remove();
+            itemIndex++;
             updateTotals();
-        });
+        }
 
-        itemIndex++;
-        updateTotals();
-    }
+        function updateTotals() {
+            const rows = container.querySelectorAll('.item-row');
+            let totalQty = 0;
+            
+            rows.forEach(row => {
+                const qty = parseInt(row.querySelector('.quantity-input').value) || 0;
+                totalQty += qty;
+            });
 
-    function updateTotals() {
-        const rows = container.querySelectorAll('.item-row');
-        let totalQty = 0;
-        
-        rows.forEach(row => {
-            const qty = parseInt(row.querySelector('.quantity-input').value) || 0;
-            totalQty += qty;
-        });
+            totalItemsEl.textContent = rows.length;
+            totalQuantityEl.textContent = totalQty;
+        }
 
-        totalItemsEl.textContent = rows.length;
-        totalQuantityEl.textContent = totalQty;
-    }
+        addBtn.addEventListener('click', () => addItemRow());
 
-    addBtn.addEventListener('click', () => addItemRow());
+        // Add first row on load (with pre-selected item if any)
+        const preselectedItemId = {{ request('item_id') ?? 'null' }};
+        addItemRow(preselectedItemId);
 
-    // Add first row on load (with pre-selected item if any)
-    const preselectedItemId = {{ request('item_id') ?? 'null' }};
-    addItemRow(preselectedItemId);
-});
+        // Trigger warehouse change if value exists (for Admin initial load)
+        if (warehouseSelect && warehouseSelect.value) {
+             handleWarehouseChange();
+        }
+    });
 </script>
 @endpush

@@ -61,19 +61,15 @@ class Item extends Model
     /**
      * Get total stock across all warehouses
      */
+    /**
+     * Get stock across all warehouses (Sum)
+     */
     public function getStockAttribute()
     {
         return $this->warehouseItems->sum('stock');
     }
 
-    /**
-     * Get minimum stock (using max of warehouse minimums or sum? Usually per warehouse but for global view maybe sum or max?)
-     * For now let's sum it or return 0 if no warehouse items.
-     */
-    public function getMinimumStockAttribute()
-    {
-        return $this->warehouseItems->sum('minimum_stock');
-    }
+    // Removed getMinimumStockAttribute to avoid shadowing DB column
 
     /**
      * Check if stock is low (below minimum) in ANY warehouse

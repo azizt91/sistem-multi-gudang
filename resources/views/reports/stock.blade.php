@@ -21,10 +21,10 @@
 <!-- Filters -->
 <div class="card mb-4">
     <div class="card-body">
-        <form action="{{ route('reports.stock') }}" method="GET" class="row g-3">
+        <form id="filterForm" class="row g-3">
             <div class="col-md-3">
                 <label class="form-label">Gudang</label>
-                <select name="warehouse_id" class="form-select" onchange="this.form.submit()">
+                <select name="warehouse_id" class="form-select filter-input">
                     <option value="">Semua Gudang</option>
                     @foreach($warehouses as $w)
                         <option value="{{ $w->id }}" {{ request('warehouse_id') == $w->id ? 'selected' : '' }}>
@@ -35,7 +35,7 @@
             </div>
             <div class="col-md-3">
                 <label class="form-label">Kategori</label>
-                <select name="category_id" class="form-select" onchange="this.form.submit()">
+                <select name="category_id" class="form-select filter-input">
                     <option value="">Semua Kategori</option>
                     @foreach(\App\Models\Category::orderBy('name')->get() as $c)
                         <option value="{{ $c->id }}" {{ request('category_id') == $c->id ? 'selected' : '' }}>
@@ -46,7 +46,7 @@
             </div>
             <div class="col-md-3">
                  <div class="form-check form-switch mt-4">
-                    <input class="form-check-input" type="checkbox" name="low_stock" value="1" id="lowStock" {{ request('low_stock') ? 'checked' : '' }} onchange="this.form.submit()">
+                    <input class="form-check-input filter-input" type="checkbox" name="low_stock" value="1" id="lowStock" {{ request('low_stock') ? 'checked' : '' }}>
                     <label class="form-check-label" for="lowStock">Hanya Stok Menipis</label>
                 </div>
             </div>
@@ -57,82 +57,64 @@
     </div>
 </div>
 
-<!-- Summary Cards -->
-<div class="row g-3 mb-4">
-    <div class="col-md-4">
-        <div class="stats-card primary">
-            <div class="stats-value">{{ number_format($summary['total_items']) }}</div>
-            <div class="stats-label">Total Jenis Barang</div>
-            <i class="bi bi-box-seam stats-icon"></i>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="stats-card info">
-            <div class="stats-value">{{ number_format($summary['total_stock']) }}</div>
-            <div class="stats-label">Total Stok</div>
-            <i class="bi bi-boxes stats-icon"></i>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="stats-card warning">
-            <div class="stats-value">{{ number_format($summary['low_stock_count']) }}</div>
-            <div class="stats-label">Stok Menipis</div>
-            <i class="bi bi-exclamation-triangle stats-icon"></i>
-        </div>
-    </div>
+<div id="report-content">
+    @include('reports.partials.stock_content')
 </div>
 
-<!-- Stock Table -->
-<div class="card">
-    <div class="card-header">
-        <i class="bi bi-list-ul me-2"></i>Daftar Stok Barang
-    </div>
-    <div class="card-body p-0">
-        <div class="table-responsive">
-            <table class="table table-hover mb-0">
-                <thead>
-                    <tr>
-                        <th>Kode</th>
-                        <th>Nama Barang</th>
-                        <th>Kategori</th>
-                        <th class="text-center">Stok</th>
-                        <th class="text-center">Min</th>
-                        <th>Satuan</th>
-                        <th>Status</th>
-                        <th>Lokasi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($items as $item)
-                    <tr>
-                        <td><code>{{ $item->code }}</code></td>
-                        <td>{{ $item->name }}</td>
-                        <td>{{ $item->category->name }}</td>
-                        <td class="text-center fw-bold {{ $item->isLowStock() ? 'text-danger' : 'text-success' }}">
-                            {{ $item->stock }}
-                        </td>
-                        <td class="text-center">{{ $item->minimum_stock }}</td>
-                        <td>{{ $item->unit->abbreviation }}</td>
-                        <td>
-                            @if($item->isLowStock())
-                            <span class="badge bg-danger">Stok Menipis</span>
-                            @else
-                            <span class="badge bg-success">Normal</span>
-                            @endif
-                        </td>
-                        <td>{{ $item->rack_location ?? '-' }}</td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="8" class="text-center py-5">
-                            <i class="bi bi-inbox fs-1 text-muted"></i>
-                            <p class="text-muted mt-2 mb-0">Tidak ada barang</p>
-                        </td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const filterForm = document.getElementById('filterForm');
+    const reportContent = document.getElementById('report-content');
+    const inputs = filterForm.querySelectorAll('.filter-input');
+    const excelBtn = document.querySelector('.btn-success');
+    const pdfBtn = document.querySelector('.btn-danger');
+
+    function fetchReport(url) {
+        // Show loading state
+        reportContent.style.opacity = '0.5';
+        
+        // If no url provided, build from form
+        if (!url) {
+            const formData = new FormData(filterForm);
+            const params = new URLSearchParams(formData);
+            url = '{{ route("reports.stock") }}?' + params.toString();
+            
+            // Update Export Links
+            const excelUrl = new URL(excelBtn.href);
+            excelUrl.search = params.toString();
+            excelBtn.href = excelUrl.toString();
+
+            const pdfUrl = new URL(pdfBtn.href);
+            pdfUrl.search = params.toString();
+            pdfBtn.href = pdfUrl.toString();
+        }
+
+        // Update URL
+        history.pushState(null, '', url);
+
+        fetch(url, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.text())
+        .then(html => {
+            reportContent.innerHTML = html;
+            reportContent.style.opacity = '1';
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            reportContent.style.opacity = '1';
+        });
+    }
+
+    // Attach listeners
+    inputs.forEach(input => {
+        input.addEventListener('change', () => fetchReport());
+    });
+});
+</script>
+@endpush

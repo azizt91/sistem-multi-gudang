@@ -80,6 +80,7 @@
 
     <div class="col-lg-8">
         <!-- Stock Per Warehouse -->
+        @if(auth()->user()->isAdmin() || auth()->user()->isOwner())
         <div class="card mb-4">
             <div class="card-header">
                 <i class="bi bi-building me-2"></i>Stok per Gudang
@@ -113,6 +114,7 @@
                 </div>
             </div>
         </div>
+        @endif
 
         <!-- Transaction History -->
         <div class="card">

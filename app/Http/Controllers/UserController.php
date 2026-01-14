@@ -27,6 +27,10 @@ class UserController extends Controller
 
         $users = $query->orderBy('name')->paginate(10);
 
+        if ($request->ajax()) {
+            return view('users.partials.table', compact('users'))->render();
+        }
+
         return view('users.index', compact('users'));
     }
 

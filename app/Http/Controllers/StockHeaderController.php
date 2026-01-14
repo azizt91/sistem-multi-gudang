@@ -56,6 +56,10 @@ class StockHeaderController extends Controller
              // For simplicity, let view handle UI hiding, but query is secure.
         }
 
+        if ($request->ajax()) {
+            return view('stock-headers.partials.table', compact('headers'))->render();
+        }
+
         return view('stock-headers.index', compact('headers', 'warehouses'));
     }
 
@@ -68,7 +72,11 @@ class StockHeaderController extends Controller
             abort(403);
         }
 
-        $items = Item::with('unit')->orderBy('name')->get();
+        $items = Item::with(['unit', 'warehouseItems' => function($q) {
+            if (auth()->user()->isStaff()) {
+                $q->where('warehouse_id', auth()->user()->warehouse_id);
+            }
+        }])->orderBy('name')->get();
         $type = 'in';
         
         // Scope Warehouses for Dropdown
@@ -88,8 +96,14 @@ class StockHeaderController extends Controller
             abort(403);
         }
 
-        $items = Item::with('unit')->whereHas('warehouseItems', function($q) {
-             // If Staff, only show items with stock IN THEIR warehouse
+        $items = Item::with(['unit', 'warehouseItems' => function($q) {
+            // IMPORTANT: Eager load only relevant warehouse items so $item->stock accessor
+            // (which sums warehouseItems) calculates the correct local stock for Staff.
+            if (auth()->user()->isStaff()) {
+                $q->where('warehouse_id', auth()->user()->warehouse_id);
+            }
+        }])->whereHas('warehouseItems', function($q) {
+             // Filter items that exist/have stock in the warehouse
              if (auth()->user()->isStaff()) {
                  $q->where('warehouse_id', auth()->user()->warehouse_id);
              }

@@ -25,31 +25,59 @@ class StockReportExport implements FromCollection, WithHeadings, WithMapping, Wi
 
     public function collection()
     {
-        $query = WarehouseItem::with(['item.category', 'item.unit', 'warehouse']);
+        // 1. Get Warehouses (All or Filtered)
+        $warehousesQuery = \App\Models\Warehouse::orderBy('name');
+        if($this->warehouseId) {
+            $warehousesQuery->where('id', $this->warehouseId);
+        }
+        $warehouses = $warehousesQuery->get();
 
+        // 2. Get Items (All or Filtered)
+        $itemsQuery = \App\Models\Item::with(['category', 'unit', 'warehouseItems'])->orderBy('name');
         if ($this->categoryId) {
-            $query->whereHas('item', function ($q) {
-                $q->where('category_id', $this->categoryId);
-            });
+            $itemsQuery->where('category_id', $this->categoryId);
+        }
+        $allItems = $itemsQuery->get();
+
+        // 3. Build Matrix
+        $reportData = collect();
+
+        foreach ($warehouses as $warehouse) {
+            foreach ($allItems as $item) {
+                // Determine stock for this specific pair
+                $warehouseItem = $item->warehouseItems->firstWhere('warehouse_id', $warehouse->id);
+                $stock = $warehouseItem->stock ?? 0;
+                // Fix for 0 minimum stock override issue
+                $localMinStock = $warehouseItem->minimum_stock ?? 0;
+                $minStock = ($localMinStock > 0) ? $localMinStock : $item->minimum_stock;
+                
+                // Filter Low Stock if requested
+                if ($this->lowStockOnly && $stock > $minStock) {
+                    continue;
+                }
+
+                $reportData->push((object)[
+                    'warehouse_name' => $warehouse->name,
+                    'city' => $warehouse->city ?? '-',
+                    'item_code' => $item->code,
+                    'item_name' => $item->name,
+                    'category_name' => $item->category->name,
+                    'unit_name' => $item->unit->abbreviation,
+                    'stock' => (int) ($warehouseItem->stock ?? 0),
+                    'minimum_stock' => (int) ($minStock),
+                    'rack_location' => $item->rack_location,
+                    'status' => $stock <= $minStock ? 'Low Stock' : 'Normal',
+                ]);
+            }
         }
 
-        if ($this->warehouseId) {
-            $query->where('warehouse_id', $this->warehouseId);
-        }
-
-        if ($this->lowStockOnly) {
-            $query->whereColumn('stock', '<=', 'minimum_stock');
-        }
-
-        return $query->get()->sortBy(function ($warehouseItem) {
-            // Sort by Warehouse Name then Item Name
-            return $warehouseItem->warehouse->name . $warehouseItem->item->name;
-        });
+        return $reportData;
     }
 
     public function headings(): array
     {
         return [
+            'Gudang',
             'Kota',
             'Kode Barang',
             'Nama Barang',
@@ -62,20 +90,21 @@ class StockReportExport implements FromCollection, WithHeadings, WithMapping, Wi
         ];
     }
 
-    public function map($warehouseItem): array
+    public function map($row): array
     {
-        $isLow = $warehouseItem->stock <= $warehouseItem->minimum_stock;
-
+        // Since we constructed objects in collection(), map is simpler or even redundant if structure matches.
+        // But let's keep it for explicit ordering/formatting.
         return [
-            $warehouseItem->warehouse->city ?? '-',
-            $warehouseItem->item->code,
-            $warehouseItem->item->name,
-            $warehouseItem->item->category->name,
-            $warehouseItem->item->unit->abbreviation,
-            $warehouseItem->stock,
-            $warehouseItem->minimum_stock,
-            $isLow ? 'STOK MENIPIS' : 'Normal',
-            $warehouseItem->item->rack_location ?? '-',
+            $row->warehouse_name,
+            $row->city,
+            $row->item_code,
+            $row->item_name,
+            $row->category_name,
+            $row->unit_name,
+            (string) $row->stock, // Force string to ensure "0" displays in Excel
+            (string) $row->minimum_stock,
+            $row->status === 'Low Stock' ? 'STOK MENIPIS' : 'Normal',
+            $row->rack_location ?? '-',
         ];
     }
 

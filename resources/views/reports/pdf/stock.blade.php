@@ -115,28 +115,25 @@
             </tr>
         </thead>
         <tbody>
-            @forelse($items as $warehouseItem)
+            @forelse($items as $row)
             <tr>
-                <td>{{ $warehouseItem->warehouse->city ?? '-' }}</td>
-                <td>{{ $warehouseItem->item->code }}</td>
-                <td>{{ $warehouseItem->item->name }}</td>
-                <td>{{ $warehouseItem->item->category->name }}</td>
-                <td class="text-center">{{ $warehouseItem->item->unit->abbreviation }}</td>
+                <td>{{ $row->city }}</td>
+                <td>{{ $row->item_code }}</td>
+                <td>{{ $row->item_name }}</td>
+                <td>{{ $row->category_name }}</td>
+                <td class="text-center">{{ $row->unit_name }}</td>
                 <td class="text-center fw-bold">
-                    {{ $warehouseItem->stock }}
+                    {{ $row->stock }}
                 </td>
-                <td class="text-center">{{ $warehouseItem->minimum_stock }}</td>
+                <td class="text-center">{{ $row->minimum_stock }}</td>
                 <td class="text-center">
-                    @php
-                        $isLow = $warehouseItem->stock <= $warehouseItem->minimum_stock;
-                    @endphp
-                    @if($isLow)
+                    @if($row->status === 'Low Stock')
                         <span class="badge badge-danger">Menipis</span>
                     @else
                         <span class="badge badge-success">Normal</span>
                     @endif
                 </td>
-                <td>{{ $warehouseItem->item->rack_location ?? '-' }}</td>
+                <td>{{ $row->rack_location ?? '-' }}</td>
             </tr>
             @empty
             <tr>

@@ -13,10 +13,12 @@ use Illuminate\Support\Facades\DB;
 class StockTransferController extends Controller
 {
     protected $stockService;
+    protected $auditService;
 
-    public function __construct(StockService $stockService)
+    public function __construct(StockService $stockService, \App\Services\AuditLogService $auditService)
     {
         $this->stockService = $stockService;
+        $this->auditService = $auditService;
     }
 
     public function index(Request $request)
@@ -34,6 +36,10 @@ class StockTransferController extends Controller
         $transfers = $query->paginate(15);
         $warehouses = Warehouse::orderBy('name')->get();
 
+        if ($request->ajax()) {
+            return view('stock-transfers.partials.table', compact('transfers', 'warehouses'))->render();
+        }
+
         return view('stock-transfers.index', compact('transfers', 'warehouses'));
     }
 
@@ -43,8 +49,26 @@ class StockTransferController extends Controller
         if (auth()->user()->isOwner()) abort(403);
 
         $warehouses = Warehouse::orderBy('name')->get();
-        // Get all items, logic for availability handles in validation/UI
-        $items = Item::with('unit')->orderBy('name')->get();
+        $warehouses = Warehouse::orderBy('name')->get();
+
+        // Fetch items with stock logic
+        if (auth()->user()->isStaff()) {
+            // Staff: Only items in their warehouse
+            $items = Item::with(['unit', 'warehouseItems' => function($q) {
+                $q->where('warehouse_id', auth()->user()->warehouse_id);
+            }])->whereHas('warehouseItems', function($q) {
+                 $q->where('warehouse_id', auth()->user()->warehouse_id)
+                   ->where('stock', '>', 0);
+            })->orderBy('name')->get();
+        } else {
+            // Admin: Initial list (can be empty or all, let's load all but stock will be sum unless filtered)
+            // Ideally Admin selects warehouse first, so we can send empty list or list for first warehouse.
+            // Let's send empty list to force specific selection? No, user might want to see global list?
+            // User request implies "Show items matching warehouse".
+            // Let's preload items but frontend will re-fetch when warehouse changes.
+            // For now, load all items with unit. Stock display will rely on JS/Frontend or default accessor.
+            $items = Item::with('unit')->orderBy('name')->get(); 
+        }
 
         return view('stock-transfers.create', compact('warehouses', 'items'));
     }

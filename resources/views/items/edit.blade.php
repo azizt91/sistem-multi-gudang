@@ -14,6 +14,18 @@
                     @csrf
                     @method('PUT')
 
+                    @if(isset($contextWarehouse))
+                    <div class="alert alert-info border-info d-flex align-items-center mb-4">
+                        <i class="bi bi-info-circle-fill fs-4 me-3"></i>
+                        <div>
+                            <strong>Mode Edit Spesifik Gudang</strong><br>
+                            Anda sedang mengubah konfigurasi untuk <strong>{{ $contextWarehouse->name }}</strong>. 
+                            Perubahan pada <em>Minimum Stok</em> hanya akan berlaku untuk gudang ini.
+                        </div>
+                    </div>
+                    <input type="hidden" name="warehouse_id" value="{{ $contextWarehouse->id }}">
+                    @endif
+
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label for="code" class="form-label">Kode Barang <span class="text-danger">*</span></label>
@@ -62,13 +74,21 @@
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label">Stok Saat Ini</label>
+                            <label class="form-label">Stok Saat Ini @if(isset($contextWarehouse)) <small class="text-muted">({{ $contextWarehouse->name }})</small> @endif</label>
                             <input type="text" class="form-control bg-light" value="{{ $item->stock }} {{ $item->unit->abbreviation }}" readonly>
                             <small class="text-muted">Stok hanya bisa diubah melalui transaksi</small>
                         </div>
 
                         <div class="col-md-6">
-                            <label for="minimum_stock" class="form-label">Minimum Stok <span class="text-danger">*</span></label>
+                            <label for="minimum_stock" class="form-label">
+                                Minimum Stok 
+                                @if(isset($contextWarehouse)) 
+                                    <span class="badge bg-info text-dark ms-1">Khusus {{ $contextWarehouse->name }}</span>
+                                @else
+                                    <span class="badge bg-secondary ms-1">Global/Utama</span>
+                                @endif
+                                <span class="text-danger">*</span>
+                            </label>
                             <input type="number" class="form-control @error('minimum_stock') is-invalid @enderror" id="minimum_stock" name="minimum_stock" value="{{ old('minimum_stock', $item->minimum_stock) }}" min="0" required>
                             @error('minimum_stock')
                             <div class="invalid-feedback">{{ $message }}</div>

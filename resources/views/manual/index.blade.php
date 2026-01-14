@@ -231,8 +231,12 @@
                                 <li><strong>Nama Barang</strong> - Nama lengkap item</li>
                                 <li><strong>Kategori</strong> - Pilih dari daftar</li>
                                 <li><strong>Satuan</strong> - Pilih unit (pcs, kg, dll)</li>
-                                <li><strong>Stok Awal</strong> - Jumlah awal</li>
                                 <li><strong>Minimum Stok</strong> - Batas notifikasi</li>
+                            </ul>
+                            <div class="alert alert-info mt-2">
+                                <i class="bi bi-info-circle me-1"></i>
+                                <strong>Info Stok:</strong> Saat barang baru dibuat, stok otomatis <strong>0</strong>. Silakan input stok via menu <strong>Stok Masuk</strong>.
+                            </div>
                             </ul>
                         </div>
                         <div class="col-md-6">
@@ -592,28 +596,47 @@
                         <thead>
                             <tr>
                                 <th>Role</th>
-                                <th>Hak Akses</th>
+                                <th>Deskripsi & Hak Akses</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
                                 <td><span class="badge bg-danger">Admin</span></td>
-                                <td>Akses penuh ke semua fitur termasuk kelola user</td>
+                                <td>
+                                    <strong>Role Tertinggi (Super User).</strong>
+                                    <ul>
+                                        <li>Bisa melihat data SEMUA gudang.</li>
+                                        <li>Bisa filter laporan per gudang atau gabungan.</li>
+                                        <li>Bisa Menambah/Edit/Hapus User dan Barang.</li>
+                                        <li>Bisa melakukan transaksi stok.</li>
+                                        <li>Wajib memilih "Gudang" saat input Stok Masuk (karena Admin tidak terikat satu gudang).</li>
+                                    </ul>
+                                </td>
                             </tr>
                             <tr>
                                 <td><span class="badge bg-primary">Staff</span></td>
                                 <td>
-                                    Akses terbatas sesuai <strong>Penempatan Gudang/Kota</strong>.
+                                    <strong>Role Operasional (Terbatas).</strong>
                                     <ul>
-                                        <li>Hanya bisa melihat stok di gudang tempat mereka ditugaskan.</li>
-                                        <li>Memproses transaksi masuk/keluar hanya untuk gudang tersebut.</li>
-                                        <li>Tidak bisa melihat data gudang lain.</li>
+                                        <li><strong>Wajib</strong> ditempatkan di satu gudang spesifik saat pembuatan akun.</li>
+                                        <li>Hanya bisa melihat stok di gudang tempat mereka bertugas.</li>
+                                        <li><strong>Tidak bisa</strong> melihat/memilih gudang lain (Filter Gudang disembunyikan).</li>
+                                        <li>Saat input Stok Masuk, gudang otomatis terisi sesuai penempatan mereka.</li>
+                                        <li>Tidak bisa menambah Master Barang baru.</li>
                                     </ul>
                                 </td>
                             </tr>
                             <tr>
                                 <td><span class="badge bg-warning text-dark">Owner</span></td>
-                                <td>Lihat barang, lihat transaksi, akses laporan</td>
+                                <td>
+                                    <strong>Role Pemantau (Monitoring).</strong>
+                                    <ul>
+                                        <li><strong>Same View as Admin:</strong> Bisa melihat data SEMUA gudang.</li>
+                                        <li><strong>Filter Gudang Aktif:</strong> Bisa memfilter daftar barang/laporan berdasarkan gudang tertentu untuk audit.</li>
+                                        <li><strong>Read-Only:</strong> Tidak bisa melakukan input data (Tambah Barang/Transaksi) untuk menjaga integritas data.</li>
+                                        <li>Hanya fokus melihat Dashboard, Laporan Stok, dan Audit Logs.</li>
+                                    </ul>
+                                </td>
                             </tr>
                         </tbody>
                     </table>

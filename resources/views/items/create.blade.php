@@ -126,13 +126,7 @@
                             @enderror
                         </div>
 
-                        <div class="col-md-4">
-                            <label for="stock" class="form-label">Stok Awal <span class="text-danger">*</span></label>
-                            <input type="number" class="form-control @error('stock') is-invalid @enderror" id="stock" name="stock" value="{{ old('stock', 0) }}" min="0" required>
-                            @error('stock')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
+                        <!-- Stock Awal Field Removed (Must use Stock In Transaction) -->
 
                         <div class="col-md-4">
                             <label for="minimum_stock" class="form-label">Minimum Stok <span class="text-danger">*</span></label>

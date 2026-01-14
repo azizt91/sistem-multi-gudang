@@ -57,7 +57,7 @@ class StockService
                 // Determine stock from WarehouseItem
                 $warehouseItem = WarehouseItem::firstOrCreate(
                     ['warehouse_id' => $warehouseId, 'item_id' => $item->id],
-                    ['stock' => 0, 'minimum_stock' => 0]
+                    ['stock' => 0, 'minimum_stock' => $item->minimum_stock] // Inherit global min stock
                 );
 
                 $stockBefore = $warehouseItem->stock;
@@ -165,9 +165,15 @@ class StockService
         $totalStock = $stockQuery->sum('stock');
         
         // 3. Low Stock
-        $lowStockQuery = WarehouseItem::query();
+        // Logic: stock <= effective_min_stock
+        // effective_min_stock = (wi.minimum_stock > 0) ? wi.minimum_stock : item.minimum_stock
+        // SQL: WHERE stock <= IF(warehouse_items.minimum_stock > 0, warehouse_items.minimum_stock, items.minimum_stock)
+        
+        $lowStockQuery = WarehouseItem::query()->join('items', 'warehouse_items.item_id', '=', 'items.id');
         $this->applyWarehouseScope($lowStockQuery, $warehouseId);
-        $lowStockCount = $lowStockQuery->whereColumn('stock', '<=', 'minimum_stock')->count();
+        
+        $lowStockCount = $lowStockQuery->whereRaw('warehouse_items.stock <= (CASE WHEN warehouse_items.minimum_stock > 0 THEN warehouse_items.minimum_stock ELSE items.minimum_stock END)')
+                                       ->count();
 
         // 4. Transaction Stats (Today & Month)
         // Helper to scope transactions via header
@@ -213,19 +219,23 @@ class StockService
      */
     public function getLowStockItems(int $limit = 5, ?int $warehouseId = null)
     {
-        $query = WarehouseItem::with(['item.category', 'item.unit', 'warehouse']);
+        $query = WarehouseItem::with(['item.category', 'item.unit', 'warehouse'])
+            ->join('items', 'warehouse_items.item_id', '=', 'items.id')
+            ->select('warehouse_items.*'); // Select only warehouse_items columns to avoid id collision, or explicitly select items.* needed? 
+            // Better to rely on relations, but for whereRaw we need the join.
         
         $this->applyWarehouseScope($query, $warehouseId);
         
-        return $query->whereColumn('stock', '<=', 'minimum_stock')
-                     ->orderBy('stock', 'asc')
+        return $query->whereRaw('warehouse_items.stock <= (CASE WHEN warehouse_items.minimum_stock > 0 THEN warehouse_items.minimum_stock ELSE items.minimum_stock END)')
+                     ->orderBy('warehouse_items.stock', 'asc')
                      ->limit($limit)
                      ->get()
                      ->map(function ($wi) {
                          // Transform to match view expectation
                          $item = $wi->item;
                          $item->stock = $wi->stock; // Override global stock with local
-                         $item->minimum_stock = $wi->minimum_stock; // Override global min stock
+                         // Effective Min
+                         $item->minimum_stock = ($wi->minimum_stock > 0) ? $wi->minimum_stock : $item->minimum_stock;
                          $item->warehouse_name = $wi->warehouse->name;
                          return $item;
                      });

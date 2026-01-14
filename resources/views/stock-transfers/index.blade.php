@@ -15,11 +15,12 @@
     @endif
 </div>
 
+@if(auth()->user()->isAdmin() || auth()->user()->isOwner())
 <div class="card mb-4">
     <div class="card-body">
-        <form action="{{ route('stock-transfers.index') }}" method="GET" class="row g-3">
+        <form id="filterForm" class="row g-3">
             <div class="col-md-4">
-                <select name="warehouse_id" class="form-select">
+                <select name="warehouse_id" class="form-select filter-input">
                     <option value="">Semua Gudang</option>
                     @foreach($warehouses as $warehouse)
                     <option value="{{ $warehouse->id }}" {{ request('warehouse_id') == $warehouse->id ? 'selected' : '' }}>
@@ -28,63 +29,77 @@
                     @endforeach
                 </select>
             </div>
-            <div class="col-md-2">
-                <button type="submit" class="btn btn-primary w-100">
-                    <i class="bi bi-filter me-1"></i> Filter
-                </button>
-            </div>
         </form>
     </div>
 </div>
+@endif
 
 <div class="card">
-    <div class="card-body p-0">
-        <div class="table-responsive">
-            <table class="table table-hover mb-0">
-                <thead>
-                    <tr>
-                        <th>Nomor Transfer</th>
-                        <th>Gudang Asal</th>
-                        <th>Gudang Tujuan</th>
-                        <th>Status</th>
-                        <th>User</th>
-                        <th>Tanggal</th>
-                        <th>Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($transfers as $transfer)
-                    <tr>
-                        <td class="fw-semibold">{{ $transfer->transfer_number }}</td>
-                        <td>{{ $transfer->sourceWarehouse->name }}</td>
-                        <td>{{ $transfer->destinationWarehouse->name }}</td>
-                        <td>
-                            <span class="badge bg-success">Selesai</span>
-                        </td>
-                        <td>{{ $transfer->user->name }}</td>
-                        <td>{{ $transfer->created_at->format('d/m/Y H:i') }}</td>
-                        <td>
-                            <a href="{{ route('stock-transfers.show', $transfer) }}" class="btn btn-sm btn-info text-white">
-                                <i class="bi bi-eye"></i> Detail
-                            </a>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="7" class="text-center py-5">
-                            <i class="bi bi-arrow-left-right fs-1 text-muted"></i>
-                            <p class="text-muted mt-2 mb-0">Belum ada data transfer stok</p>
-                        </td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+    <div class="card-body p-0" id="table-container">
+        @include('stock-transfers.partials.table')
     </div>
-    @if($transfers->hasPages())
-    <div class="card-footer">
-        {{ $transfers->links() }}
-    </div>
-    @endif
 </div>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const filterForm = document.getElementById('filterForm');
+    const tableContainer = document.getElementById('table-container');
+
+    // If filter form doesn't exist (e.g. staff), no JS needed for filtering
+    if (!filterForm) return;
+
+    const inputs = filterForm.querySelectorAll('.filter-input');
+
+    function fetchTable(url) {
+        // Show loading state
+        tableContainer.style.opacity = '0.5';
+        
+        // If no url provided, build from form
+        if (!url) {
+            const formData = new FormData(filterForm);
+            const params = new URLSearchParams(formData);
+            url = '{{ route("stock-transfers.index") }}?' + params.toString();
+        }
+
+        // Update URL
+        history.pushState(null, '', url);
+
+        fetch(url, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.text())
+        .then(html => {
+            tableContainer.innerHTML = html;
+            tableContainer.style.opacity = '1';
+            rebindPagination();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            tableContainer.style.opacity = '1';
+        });
+    }
+
+    function rebindPagination() {
+        const links = tableContainer.querySelectorAll('.pagination a');
+        links.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                fetchTable(this.href);
+            });
+        });
+    }
+
+    // Attach listeners
+    inputs.forEach(input => {
+        input.addEventListener('change', () => fetchTable());
+    });
+
+    // Initial binding for pagination
+    rebindPagination();
+});
+</script>
+@endpush

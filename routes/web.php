@@ -43,6 +43,7 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // Items - View, search, and print barcodes (all roles) - define AFTER create route
+    Route::get('/items/list', [ItemController::class, 'listItems'])->name('items.list');
     Route::get('/items', [ItemController::class, 'index'])->name('items.index');
     Route::post('/items/print-barcodes', [ItemController::class, 'printBarcodes'])->name('items.print-barcodes');
     Route::post('/items/find-by-code', [ItemController::class, 'findByCode'])->name('items.find-by-code');

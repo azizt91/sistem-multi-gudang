@@ -35,7 +35,7 @@
     <div class="col-xl-3 col-md-6">
         <div class="stats-card primary">
             <div class="stats-value">{{ number_format($stats['total_items']) }}</div>
-            <div class="stats-label">Total Barang</div>
+            <div class="stats-label">Item Tersedia</div>
             <i class="bi bi-box-seam stats-icon"></i>
         </div>
     </div>

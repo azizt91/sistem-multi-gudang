@@ -63,6 +63,12 @@ return [
             ]) : [],
         ],
 
+        'dump' => [
+            'dump_binary_path' => 'C:/xampp/mysql/bin', // Sesuaikan jika XAMPP bapak install di drive lain
+            'use_single_transaction',
+            'timeout' => 60 * 5, // 5 menit
+        ],
+
         'mariadb' => [
             'driver' => 'mariadb',
             'url' => env('DB_URL'),

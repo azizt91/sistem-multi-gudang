@@ -9,7 +9,7 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 // Bersihkan backup lama setiap hari jam 1 pagi
-Schedule::command('backup:clean')->daily()->at('01:00');
+// Schedule::command('backup:clean')->daily()->at('01:00');
 
 // Jalankan backup baru setiap hari jam 1:30 pagi
-Schedule::command('backup:run')->daily()->at('01:30');
+// Schedule::command('backup:run')->daily()->at('01:30');

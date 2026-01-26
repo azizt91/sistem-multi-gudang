@@ -36,7 +36,7 @@
                 <td class="text-center fw-semibold {{ $header->type === 'in' ? 'text-success' : 'text-danger' }}">
                     {{ $header->type === 'in' ? '+' : '-' }}{{ $header->total_quantity }}
                 </td>
-                <td>{{ $header->user->name }}</td>
+                <td>{{ optional($header->user)->name ?? 'User Terhapus' }}</td>
                 <td>
                     @if($header->isReceiptLocked())
                     <span class="badge bg-info"><i class="bi bi-lock me-1"></i>Dikunci</span>

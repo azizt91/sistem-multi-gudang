@@ -9,7 +9,7 @@
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             font-family: 'DejaVu Sans', Arial, sans-serif;
             font-size: 11px;
@@ -161,7 +161,7 @@
             @php
                 $profile = \App\Models\CompanyProfile::first();
             @endphp
-            @if($profile && $profile->logo_path)
+            @if($profile && $profile->logo_path && file_exists(public_path('storage/' . $profile->logo_path)))
                 <img src="{{ public_path('storage/' . $profile->logo_path) }}" style="height: 40px; margin-bottom: 5px;">
             @endif
             <h1 style="margin-top: 5px;">{{ $profile->company_name ?? 'WMS' }}</h1>
@@ -182,7 +182,7 @@
                 <td class="label">Gudang</td>
                 <td>: {{ $stockHeader->warehouse->name ?? '-' }}</td>
                 <td class="label">Jenis</td>
-                <td>: 
+                <td>:
                     <span class="badge {{ $stockHeader->type === 'in' ? 'badge-success' : 'badge-danger' }}">
                         {{ $stockHeader->type_label }}
                     </span>
@@ -248,7 +248,7 @@
                 <td>
                     <strong>{{ $stockHeader->type === 'in' ? 'Pengirim' : 'Penerima' }}</strong>
                     <div class="signature-box">
-                        @if($stockHeader->sender_signature)
+                        @if($stockHeader->sender_signature && file_exists(public_path('storage/' . $stockHeader->sender_signature)))
                             <img src="{{ public_path('storage/' . $stockHeader->sender_signature) }}" alt="TTD">
                         @endif
                     </div>
@@ -259,7 +259,7 @@
                 <td>
                     <strong>{{ $stockHeader->type === 'in' ? 'Penerima (Gudang)' : 'Pengirim (Gudang)' }}</strong>
                     <div class="signature-box">
-                        @if($stockHeader->receiver_signature)
+                        @if($stockHeader->receiver_signature && file_exists(public_path('storage/' . $stockHeader->receiver_signature)))
                             <img src="{{ public_path('storage/' . $stockHeader->receiver_signature) }}" alt="TTD">
                         @endif
                     </div>

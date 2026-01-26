@@ -44,7 +44,7 @@
                             </tr>
                             <tr>
                                 <td><strong>Petugas</strong></td>
-                                <td>{{ $stockHeader->user->name }}</td>
+                                <td>{{ $stockHeader->user->name ?? 'User Terhapus' }}</td>
                             </tr>
                             <tr>
                                 <td><strong>Gudang</strong></td>
@@ -113,12 +113,15 @@
                             @foreach($stockHeader->transactions as $index => $transaction)
                             <tr>
                                 <td>{{ $index + 1 }}</td>
-                                <td><code>{{ $transaction->item->code }}</code></td>
-                                <td>{{ $transaction->item->name }}</td>
+                                <td><code>{{ optional($transaction->item)->code ?? 'N/A' }}</code></td>
+                                <td>{{ optional($transaction->item)->name ?? 'Item Terhapus' }}</td>
+
                                 <td class="text-center fw-bold {{ $stockHeader->type === 'in' ? 'text-success' : 'text-danger' }}">
                                     {{ $stockHeader->type === 'in' ? '+' : '-' }}{{ $transaction->quantity }}
                                 </td>
-                                <td>{{ $transaction->item->unit->abbreviation }}</td>
+
+                                <td>{{ optional(optional($transaction->item)->unit)->abbreviation ?? '-' }}</td>
+
                                 <td>{{ $transaction->stock_before }}</td>
                                 <td>{{ $transaction->stock_after }}</td>
                                 <td>{{ $transaction->notes ?? '-' }}</td>

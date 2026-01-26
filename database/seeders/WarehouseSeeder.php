@@ -16,7 +16,7 @@ class WarehouseSeeder extends Seeder
         if (Warehouse::count() === 0) {
             Warehouse::create([
                 'code' => 'WH-001',
-                'name' => 'Gudang Jabar',
+                'name' => 'Gudang Bandung',
                 'city' => 'Bandung',
                 'address' => 'Jl. Terusan Bojongsoang No. 247, Kab. Bandung, Jawa Barat',
                 'description' => 'Gudang utama penyimpanan barang',
@@ -25,19 +25,28 @@ class WarehouseSeeder extends Seeder
             
             Warehouse::create([
                 'code' => 'WH-002',
-                'name' => 'Gudang Jabo',
+                'name' => 'Gudang Bekasi',
                 'city' => 'Bekasi',
                 'address' => 'Jl. Teuku Umar No. 9 RT003/RW001, Bekasi, Jawa Barat',
-                'description' => 'Gudang distribusi wilayah jabodetabek',
+                'description' => 'Gudang distribusi wilayah bekasi',
                 'is_active' => true,
             ]);
 
             Warehouse::create([
                 'code' => 'WH-003',
-                'name' => 'Gudang Jateng',
+                'name' => 'Gudang Tegal',
                 'city' => 'Tegal',
                 'address' => 'Jl. Prof. Moh Yamin no 77, Slawi, Jawa Tengah',
-                'description' => 'Gudang distribusi wilayah jateng',
+                'description' => 'Gudang distribusi wilayah tegal',
+                'is_active' => true,
+            ]);
+
+            Warehouse::create([
+                'code' => 'WH-004',
+                'name' => 'Gudang Semarang',
+                'city' => 'Semarang',
+                'address' => 'Jl. Wolter Monginsidi, Genuksari, Kec. Genuk, Kota Semarang, Jawa Tengah 50117',
+                'description' => 'Gudang distribusi wilayah semarang',
                 'is_active' => true,
             ]);
         }

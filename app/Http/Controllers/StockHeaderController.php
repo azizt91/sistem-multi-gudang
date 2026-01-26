@@ -351,7 +351,17 @@ class StockHeaderController extends Controller
             $warehouseId = auth()->user()->warehouse_id; 
         } else {
              // Admin/Owner defaults to first, but owner is blocked above
-             if (!$warehouseId) $warehouseId = \App\Models\Warehouse::first()->id;
+             if (!$warehouseId) {
+                 $defaultWarehouse = \App\Models\Warehouse::first();
+                 // Cek dulu apakah gudang ada
+                 if (!$defaultWarehouse) {
+                     return response()->json([
+                        'success' => false,
+                        'message' => 'Belum ada data gudang. Silakan buat gudang terlebih dahulu.'
+                     ], 400);
+                 }
+                 $warehouseId = $defaultWarehouse->id;
+             }
         }
 
         $item = Item::with(['unit'])->where('code', $validated['code'])->first();
@@ -400,7 +410,17 @@ class StockHeaderController extends Controller
         if (auth()->user()->isStaff()) {
             $warehouseId = auth()->user()->warehouse_id; 
         } else {
-             if (!$warehouseId) $warehouseId = \App\Models\Warehouse::first()->id;
+             if (!$warehouseId) {
+                 $defaultWarehouse = \App\Models\Warehouse::first();
+                 // Cek dulu apakah gudang ada
+                 if (!$defaultWarehouse) {
+                     return response()->json([
+                        'success' => false,
+                        'message' => 'Belum ada data gudang. Silakan buat gudang terlebih dahulu.'
+                     ], 400);
+                 }
+                 $warehouseId = $defaultWarehouse->id;
+             }
         }
 
         $item = Item::with(['unit'])->where('code', $validated['code'])->first();

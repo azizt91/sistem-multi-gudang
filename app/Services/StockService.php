@@ -109,9 +109,9 @@ class StockService
                 $warehouseItem->increment('stock', $transaction->quantity);
             }
 
-            // START AUDIT LOG (Only log once per header revert to avoid spam, or log per line? 
+            // START AUDIT LOG (Only log once per header revert to avoid spam, or log per line?
             // Revert is usually called in a loop for deletion. Let's log per line for detail or maybe just rely on the controller's "delete_transaction" log.
-            // Actually, the controller logs "delete_transaction" which covers the whole event. 
+            // Actually, the controller logs "delete_transaction" which covers the whole event.
             // Logging every line item revert might be too noisy.
             // User requested: "Delete stock transaction" is a tracked action.
             // So logging in Controller is sufficient for the high level action.
@@ -163,15 +163,15 @@ class StockService
         $stockQuery = WarehouseItem::query();
         $this->applyWarehouseScope($stockQuery, $warehouseId);
         $totalStock = $stockQuery->sum('stock');
-        
+
         // 3. Low Stock
         // Logic: stock <= effective_min_stock
         // effective_min_stock = (wi.minimum_stock > 0) ? wi.minimum_stock : item.minimum_stock
         // SQL: WHERE stock <= IF(warehouse_items.minimum_stock > 0, warehouse_items.minimum_stock, items.minimum_stock)
-        
+
         $lowStockQuery = WarehouseItem::query()->join('items', 'warehouse_items.item_id', '=', 'items.id');
         $this->applyWarehouseScope($lowStockQuery, $warehouseId);
-        
+
         $lowStockCount = $lowStockQuery->whereRaw('warehouse_items.stock <= (CASE WHEN warehouse_items.minimum_stock > 0 THEN warehouse_items.minimum_stock ELSE items.minimum_stock END)')
                                        ->count();
 
@@ -192,13 +192,13 @@ class StockService
 
         $todayIn = StockTransaction::today()->stockIn();
         $scopeTx($todayIn);
-        
+
         $todayOut = StockTransaction::today()->stockOut();
         $scopeTx($todayOut);
-        
+
         $monthIn = StockTransaction::thisMonth()->stockIn();
         $scopeTx($monthIn);
-        
+
         $monthOut = StockTransaction::thisMonth()->stockOut();
         $scopeTx($monthOut);
 
@@ -210,7 +210,10 @@ class StockService
             'total_stock_out_today' => (int) $todayOut->sum('quantity'),
             'total_stock_in_month' => (int) $monthIn->sum('quantity'),
             'total_stock_out_month' => (int) $monthOut->sum('quantity'),
-            'warehouse_name' => $finalWarehouseId ? Warehouse::find($finalWarehouseId)->name : 'Semua Gudang',
+            // Gunakan optional() atau pengecekan manual
+            'warehouse_name' => $finalWarehouseId 
+                ? (Warehouse::find($finalWarehouseId)?->name ?? 'Gudang Tidak Dikenal') 
+                : 'Semua Gudang',
         ];
     }
 
@@ -221,24 +224,38 @@ class StockService
     {
         $query = WarehouseItem::with(['item.category', 'item.unit', 'warehouse'])
             ->join('items', 'warehouse_items.item_id', '=', 'items.id')
-            ->select('warehouse_items.*'); // Select only warehouse_items columns to avoid id collision, or explicitly select items.* needed? 
-            // Better to rely on relations, but for whereRaw we need the join.
-        
+            ->select('warehouse_items.*');
+
         $this->applyWarehouseScope($query, $warehouseId);
-        
+
         return $query->whereRaw('warehouse_items.stock <= (CASE WHEN warehouse_items.minimum_stock > 0 THEN warehouse_items.minimum_stock ELSE items.minimum_stock END)')
                      ->orderBy('warehouse_items.stock', 'asc')
                      ->limit($limit)
                      ->get()
                      ->map(function ($wi) {
-                         // Transform to match view expectation
+                         // --- PERBAIKAN DIMULAI DARI SINI ---
+
                          $item = $wi->item;
-                         $item->stock = $wi->stock; // Override global stock with local
-                         // Effective Min
+
+                         // 1. Cek apakah item ada. Jika null (terhapus), kita skip.
+                         if (!$item) {
+                             return null;
+                         }
+
+                         // 2. Assign stock (sekarang aman karena $item sudah dipastikan ada)
+                         $item->stock = $wi->stock;
+
+                         // 3. Logika Minimum Stock
                          $item->minimum_stock = ($wi->minimum_stock > 0) ? $wi->minimum_stock : $item->minimum_stock;
-                         $item->warehouse_name = $wi->warehouse->name;
+
+                         // 4. Cek Warehouse juga (jaga-jaga kalau gudangnya dihapus)
+                         $item->warehouse_name = $wi->warehouse ? $wi->warehouse->name : 'Unknown Warehouse';
+
                          return $item;
-                     });
+                     })
+                     // 5. Filter (buang) data yang null tadi supaya tidak error di View
+                     ->filter()
+                     ->values();
     }
 
     /**

@@ -172,7 +172,7 @@
                             @foreach($recentTransactions as $transaction)
                             <tr>
                                 <td class="small">{{ $transaction->transaction_date->format('d/m H:i') }}</td>
-                                <td>{{ Str::limit($transaction->item->name, 20) }}</td>
+                                <td>{{ Str::limit(optional($transaction->item)->name ?? 'Item Terhapus', 20) }}</td>
                                 <td>
                                     <span class="badge {{ $transaction->type_badge_class }}">
                                         {{ $transaction->type_label }}

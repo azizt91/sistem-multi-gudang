@@ -16,8 +16,8 @@ class CompanyProfileSeeder extends Seeder
             CompanyProfile::create([
                 'company_name' => 'PT. Morasha Inti Shabira',
                 'address' => 'Jl. Pungkur No. 220-218, Bandung, Jawa Barat',
-                'phone' => '021-5556677',
-                'email' => 'contact@wms-majujaya.com',
+                'phone' => '+62 813-2222-5484',
+                'email' => 'ptmoisha@gmail.com',
                 'website' => 'https://www.ptmorasha.com',
                 'logo_path' => null, 
             ]);

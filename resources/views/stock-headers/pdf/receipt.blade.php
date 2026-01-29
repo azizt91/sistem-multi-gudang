@@ -272,7 +272,7 @@
 
         <!-- Footer -->
         <div class="footer">
-            Dicetak pada: {{ now()->format('d/m/Y H:i:s') }} | Warehouse Management System
+            Dicetak pada: {{ now()->format('d/m/Y H:i:s') }} | PT. Morasha Inti Shabira
         </div>
     </div>
 </body>

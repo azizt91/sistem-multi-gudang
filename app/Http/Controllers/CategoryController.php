@@ -56,16 +56,45 @@ class CategoryController extends Controller
             ->with('success', 'Kategori berhasil diperbarui.');
     }
 
-    public function destroy(Category $category)
+    // public function destroy(Category $category)
+    // {
+    //     if ($category->items()->exists()) {
+    //         return redirect()->route('categories.index')
+    //             ->with('error', 'Kategori tidak dapat dihapus karena masih memiliki barang.');
+    //     }
+
+    //     $category->delete();
+
+    //     return redirect()->route('categories.index')
+    //         ->with('success', 'Kategori berhasil dihapus.');
+    // }
+
+    public function destroy(\App\Models\Category $category)
     {
+        // 1. Cek Barang Aktif (User wajib pindahkan manual barang yang masih dipakai)
         if ($category->items()->exists()) {
             return redirect()->route('categories.index')
-                ->with('error', 'Kategori tidak dapat dihapus karena masih memiliki barang.');
+                ->with('error', 'Kategori tidak dapat dihapus karena masih menampung barang aktif. Silakan pindahkan barangnya terlebih dahulu.');
         }
 
-        $category->delete();
+        // --- REVISI LOGIC (Agar tidak bentrok dengan Database) ---
+        // Karena kolom category_id TIDAK BOLEH NULL, maka barang yang sudah
+        // ada di tempat sampah (soft deleted) kita musnahkan permanen (Force Delete)
+        // supaya kategori ini bisa bebas dihapus.
 
-        return redirect()->route('categories.index')
-            ->with('success', 'Kategori berhasil dihapus.');
+        \App\Models\Item::onlyTrashed()
+            ->where('category_id', $category->id)
+            ->forceDelete();
+
+        // ---------------------------------------
+
+        // 2. Hapus Kategori
+        try {
+            $category->delete();
+            return redirect()->route('categories.index')
+                ->with('success', 'Kategori berhasil dihapus.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Terjadi kesalahan database: ' . $e->getMessage());
+        }
     }
 }

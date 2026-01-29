@@ -37,30 +37,30 @@ class ItemController extends Controller
              // So we DON'T filter the main query by warehouseItems existence (or maybe we do if they only want to see what's physically there?)
              // "Rekomendasi teknisnya: Untuk Daftar Nama Barang (Master Data): Tetap tampilkan SEMUA barang... Tapi untuk Kolom Sisa Stok: Wajib menampilkan angka HANYA dari gudang dia sendiri."
              // So we do NOT use whereHas here to filter rows. We ONLY use eager load for calculation.
-             
+
              // BUT wait, if admin selects a warehouse filter, usually they expect to see items IN that warehouse.
              // Let's keep existing logic: if warehouse_id is passed, we check existence?
              // Actually, if we want to show Master Data but with local stock, we shouldn't filter master data rows.
              // However, standard expectation of a "Filter" is to narrow items.
              // Let's stick to: Show ALL items, but load correct stock relation.
-             
+
              // UPDATE: Previous code used whereHas, implying strict filtering.
              // User agreed to my recommendation: "Tetap tampilkan SEMUA barang... Tapi untuk Kolom Sisa Stok: HANYA dari gudang dia".
              // So I should REMOVE `whereHas` and only keep eager loading.
              // UNLESS the user explicitly wants to "Filter by Warehouse" to see what is inside.
              // For Staff, usually they view the index as Master List.
-             
+
              // Let's support both:
              // 1. Eager load specific warehouse items (CRITICAL for stock calc)
              $query->with(['warehouseItems' => function($q) use ($warehouseId) {
                 $q->where('warehouse_id', $warehouseId);
              }]);
-             
+
              // 2. If 'filter_strict' or similar is passed? No.
              // Let's assume standard behavior for now is Just Contextual Stock.
              // But valid "Filter" UI usually implies narrowing results.
              // Let's comment out whereHas for now to follow "Master Data" principle, matches "list 15 item" logic.
-             /* 
+             /*
              $query->whereHas('warehouseItems', function($q) use ($warehouseId) {
                 $q->where('warehouse_id', $warehouseId);
              });
@@ -75,8 +75,8 @@ class ItemController extends Controller
         $items = $query->orderBy('name')->paginate(15);
         $categories = Category::orderBy('name')->get();
         // Warehouses for filter dropdown (Admin only needs full list, Staff needs self or handled in View)
-        $warehouses = auth()->user()->isStaff() 
-            ? \App\Models\Warehouse::where('id', auth()->user()->warehouse_id)->get() 
+        $warehouses = auth()->user()->isStaff()
+            ? \App\Models\Warehouse::where('id', auth()->user()->warehouse_id)->get()
             : \App\Models\Warehouse::orderBy('name')->get();
 
         if ($request->ajax()) {
@@ -157,7 +157,7 @@ class ItemController extends Controller
     {
         $categories = Category::orderBy('name')->get();
         $units = Unit::orderBy('name')->get();
-        
+
         $warehouseId = $request->query('warehouse_id');
         $contextWarehouse = null;
 
@@ -165,7 +165,7 @@ class ItemController extends Controller
             $contextWarehouse = \App\Models\Warehouse::findOrFail($warehouseId);
             // Load specific warehouse item stock settings
             $wi = $item->warehouseItems()->where('warehouse_id', $warehouseId)->first();
-            
+
             // Override item properties for the view
             if ($wi) {
                 // Use existing warehouse min stock if set, otherwise global
@@ -197,21 +197,21 @@ class ItemController extends Controller
 
         // Don't allow direct stock update - must go through transactions
         unset($validated['stock']);
-        
+
         // Handle Warehouse Context Update
         if (!empty($validated['warehouse_id'])) {
             $warehouseId = $validated['warehouse_id'];
-            
+
             // Update or Create Warehouse Item Configuration
             // We only update minimum_stock here contextually
             $wi = \App\Models\WarehouseItem::updateOrCreate(
                 ['warehouse_id' => $warehouseId, 'item_id' => $item->id],
                 ['minimum_stock' => $validated['minimum_stock']]
             );
-            
+
             // Remove minimum_stock from global update to preserve master setting
             unset($validated['minimum_stock']);
-            
+
             // Optional: Prevent other global fields from updating if we want strict separation?
             // But usually fixing a name typo should apply globally even if in context.
             // So we proceed with remaining validated data.
@@ -224,17 +224,39 @@ class ItemController extends Controller
         if (!empty($validated['warehouse_id'])) {
              $redirect->with('warehouse_id', $validated['warehouse_id']);
         }
-        
+
         return $redirect->with('success', 'Barang berhasil diperbarui.');
     }
 
+    // public function destroy(Item $item)
+    // {
+    //     // Soft delete
+    //     $item->delete();
+
+    //     return redirect()->route('items.index')
+    //         ->with('success', 'Barang berhasil dihapus.');
+    // }
+
     public function destroy(Item $item)
     {
-        // Soft delete
-        $item->delete();
+        try {
+            \Illuminate\Support\Facades\DB::transaction(function () use ($item) {
+                // 1. Ganti kodenya dulu supaya Kode Asli bisa dipakai lagi nanti
+                // Contoh: "BRG-001" berubah jadi "BRG-001-deleted-17356677"
+                $originalCode = $item->code;
+                $item->code = $originalCode . '-del-' . time();
+                $item->save();
 
-        return redirect()->route('items.index')
-            ->with('success', 'Barang berhasil dihapus.');
+                // 2. Baru lakukan Soft Delete
+                $item->delete();
+            });
+
+            return redirect()->route('items.index')
+                ->with('success', 'Barang berhasil dihapus. Kode barang kini tersedia untuk digunakan kembali.');
+
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal menghapus barang: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -354,7 +376,7 @@ class ItemController extends Controller
         $items = $query->orderBy('name')->get()->map(function($item) use ($warehouseId) {
             // Calculate stock based on context
             $stock = $warehouseId ? $item->getStockInWarehouse($warehouseId) : $item->stock;
-            
+
             return [
                 'id' => $item->id,
                 'code' => $item->code,
